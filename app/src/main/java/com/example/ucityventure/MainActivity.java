@@ -13,7 +13,7 @@ public class MainActivity extends AppCompatActivity {
 
     //caçador de ciganos
     //Olá
-
+    //mequie
     String Root_Frag = "root_fagment";
 
     public void CarregarFragmento(Fragment fragment_name) {
