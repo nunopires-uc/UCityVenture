@@ -11,7 +11,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity {
 
-
+    //caçador de ciganos
 
     String Root_Frag = "root_fagment";
 
