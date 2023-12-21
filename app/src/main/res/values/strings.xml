@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">UCityVenture</string>
+    <string name="nicknameInput">Email utilizador</string>
+    <string name="passwordInput">Palavra-passe</string>
+    <string name="emailInput">E-mail</string>
+    <string name="loginButton">login</string>
+    <string name="registerText">
+Não tem conta?
+<font color="#e9aa3f">Registe-se</font>
+</string>
+    <string name="forgotPasswordText">
+Esqueceu-se da palavra-passe?
+<font color="#e9aa3f">Clique aqui</font>
+</string>
+    <string name="nameInput">Nome próprio</string>
+    <string name="passConfirmInput">Confirme a palavra-passe</string>
+    <string name="registerButton">Registar</string>
+    <string name="verifyContentText">Foi enviado um código de verificação para o seu email! Insira-o em baixo.</string>
+    <string name="verifyInput">Código de 6 dígitos</string>
+    <string name="verifyButton">Confirmar</string>
+    <string name="title_activity_maps">MapsActivity</string>
+    <string name="title_activity_ride_profile">RideProfileActivity</string>
+    <string name="title_activity_service_ride_profile">ServiceRideProfileActivity</string>
+    <!--  TODO: Remove or change this placeholder text  -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

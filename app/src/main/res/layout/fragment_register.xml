@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".RegisterFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/registerMainText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="64dp"
+            android:fontFamily="@font/ubuntu_bold"
+            android:gravity="left"
+            android:text="REGISTO"
+            android:textColor="@color/black"
+            android:textSize="60dp" />
+
+        <TextView
+            android:id="@+id/registerSubText"
+            android:layout_width="400dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:fontFamily="@font/ubuntu_light_italic"
+            android:gravity="left"
+            android:text="REGISTE-SE NA PLATAFORMA"
+            android:textColor="@color/dark_gray"
+            android:textSize="25dp" />
+
+        <EditText
+            android:id="@+id/nameInput"
+            android:layout_width="350dp"
+            android:layout_height="70dp"
+            android:layout_marginTop="20dp"
+            android:layout_gravity="center"
+            android:background="@drawable/rounded_edges_bg"
+            android:drawableLeft="@drawable/ic_baseline_account_circle_24"
+            android:drawablePadding="10dp"
+            android:ems="10"
+            android:fontFamily="@font/ubuntu_light_italic"
+            android:hint="@string/nameInput"
+            android:inputType="textPersonName"
+            android:paddingLeft="15dp"
+            android:textSize="20dp" />
+
+        <EditText
+            android:id="@+id/emailInput"
+            android:layout_width="350dp"
+            android:layout_height="70dp"
+            android:layout_marginTop="8dp"
+            android:layout_gravity="center"
+            android:background="@drawable/rounded_edges_bg"
+            android:drawableLeft="@drawable/ic_baseline_alternate_email_24"
+            android:drawablePadding="10dp"
+            android:ems="10"
+            android:fontFamily="@font/ubuntu_light_italic"
+            android:hint="@string/emailInput"
+            android:inputType="textEmailAddress"
+            android:paddingLeft="15dp"
+            android:textSize="20dp" />
+
+
+
+        <EditText
+            android:id="@+id/passInput"
+            android:layout_width="350dp"
+            android:layout_height="70dp"
+            android:layout_marginTop="8dp"
+            android:layout_gravity="center"
+            android:background="@drawable/rounded_edges_bg"
+            android:drawableLeft="@drawable/ic_baseline_lock_24"
+            android:drawablePadding="10dp"
+            android:ems="10"
+            android:fontFamily="@font/ubuntu_light_italic"
+            android:hint="@string/passwordInput"
+            android:inputType="textPassword"
+            android:paddingLeft="15dp"
+            android:textSize="20dp" />
+
+        <EditText
+            android:id="@+id/passConfirmInput"
+            android:layout_width="350dp"
+            android:layout_height="70dp"
+            android:layout_marginTop="8dp"
+            android:layout_gravity="center"
+            android:background="@drawable/rounded_edges_bg"
+            android:drawableLeft="@drawable/ic_baseline_lock_24"
+            android:drawablePadding="10dp"
+            android:ems="10"
+            android:fontFamily="@font/ubuntu_light_italic"
+            android:hint="@string/passConfirmInput"
+            android:inputType="textPassword"
+            android:paddingLeft="15dp"
+            android:textSize="20dp" />
+
+        <Button
+            android:id="@+id/registerButton"
+            android:layout_width="250dp"
+            android:layout_height="65dp"
+            android:layout_marginTop="8dp"
+            android:layout_gravity="right"
+            android:background="@drawable/rounded_edges_button"
+            android:drawableEnd="@drawable/ic_baseline_login_24"
+            android:fontFamily="@font/ubuntu_medium"
+            android:layout_marginRight="10dp"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp"
+            android:text="@string/registerButton"
+            android:textSize="16dp"
+            app:backgroundTint="@color/mainOrange"/>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:visibility="gone"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:backgroundTint="@color/mainOrange"
+            android:layout_height="wrap_content"></ProgressBar>
+
+
+
+    </LinearLayout>
+
+</FrameLayout>

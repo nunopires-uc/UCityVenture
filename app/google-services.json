@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "24339141391",
+    "project_id": "ucityventure",
+    "storage_bucket": "ucityventure.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:24339141391:android:7946f5a1008b3735cf647a",
+        "android_client_info": {
+          "package_name": "com.example.ucityventure"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBNTx3kMHf9NE2OqrWcoKC71sRf2rc_L_g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
