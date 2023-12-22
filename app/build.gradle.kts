@@ -35,6 +35,7 @@ dependencies {
     implementation("com.google.android.material:material:1.8.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("com.google.firebase:firebase-auth:22.3.0")
+    implementation("org.osmdroid:osmdroid-android:6.1.17")
     implementation("com.google.firebase:firebase-firestore:24.10.0")
     implementation("com.google.maps.android:android-maps-utils:3.8.0")
     implementation("com.google.android.gms:play-services-maps:18.2.0")
