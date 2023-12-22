@@ -50,8 +50,9 @@ public class CustomAdapter extends ArrayAdapter<Ride> {
         Button rideButton = convertView.findViewById(R.id.rideButton);
 
         // Populate the data into the template view using the data object
-        rideName.setText(ride.getOrigin() + "->" + ride.getDestination());
-        rideDesc.setText("descricao e que");
+        rideName.setText(ride.getDestination());
+        rideDesc.setText("Desde " + ride.getOrigin());
+        rideCount.setText(ride.getRidePassangers().size() + "/" + ride.getRideCapacity());
 
 
         convertView.setOnLongClickListener(new View.OnLongClickListener() {
