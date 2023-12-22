@@ -9,13 +9,20 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import org.osmdroid.config.Configuration;
+import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.MapEventsOverlay;
+import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -28,6 +35,8 @@ public class MapsFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+
+    private MyLocationNewOverlay myLocationNewOverlay;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -73,38 +82,84 @@ public class MapsFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_maps, container, false);
     }
 
+    private void addMarkerAtLocation(GeoPoint p) {
+        // Create a marker at the specified location
+        Marker marker = new Marker(map);
+        marker.setPosition(p);
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+        map.getOverlays().add(marker);
+        map.invalidate();
+
+        // Use a geocoding service to get the street name
+        // Note: This is a placeholder, replace with your chosen geocoding service
+        //String streetName = getStreetName(p);
+        Log.i("MapsFragment", "Selected location: "  + ", " + p.getLatitude() + ", " + p.getLongitude());
+    }
+
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-
-        //load/initialize the osmdroid configuration, this can be done
+        // Load/initialize the osmdroid configuration
         Context ctx = getActivity().getApplicationContext();
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
-        //setting this before the layout is inflated is a good idea
-        //it 'should' ensure that the map has a writable location for the map cache, even without permissions
-        //if no tiles are displayed, you can try overriding the cache path using Configuration.getInstance().setCachePath
-        //see also StorageUtils
-        //note, the load method also sets the HTTP User Agent to your application's package name, abusing osm's tile servers will get you banned based on this string
 
+        // Initialize the map view
         map = (MapView) view.findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
+
+        // Initialize MyLocationNewOverlay
+        myLocationNewOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(ctx), map);
+        myLocationNewOverlay.enableMyLocation();
+        map.getOverlays().add(myLocationNewOverlay);
+
+        // Set up the mapEventsOverlay for long press
+        MapEventsOverlay mapEventsOverlay = new MapEventsOverlay(new MapEventsReceiver() {
+            @Override
+            public boolean singleTapConfirmedHelper(GeoPoint p) {
+                return false;
+            }
+
+            @Override
+            public boolean longPressHelper(GeoPoint p) {
+                // Long press detected, add a marker and get the street name
+                addMarkerAtLocation(p);
+                return true;
+            }
+        });
+        map.getOverlays().add(0, mapEventsOverlay);
+        
+
+        // Run onFirstFix to get the user's location
+        myLocationNewOverlay.runOnFirstFix(new Runnable() {
+            public void run() {
+                GeoPoint myLocation = myLocationNewOverlay.getMyLocation();
+
+                Log.d("Location", myLocation.toDoubleString());
+                // Center the map on the user's location
+                map.getController().setCenter(myLocation);
+                // Set an appropriate zoom level (adjust the value as needed)
+                map.getController().setZoom(15.0);
+                // Animate to the user's location
+                map.getController().animateTo(myLocation);
+                // Add a marker at the user's location
+                addMarkerAtLocation(myLocation);
+            }
+        });
     }
 
-    public void onResume(){
+
+
+    @Override
+    public void onResume() {
         super.onResume();
-        //this will refresh the osmdroid configuration on resuming.
-        //if you make changes to the configuration, use
-        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        //Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
-        map.onResume(); //needed for compass, my location overlays, v6.0.0 and up
+        myLocationNewOverlay.enableMyLocation();
+        map.onResume();
     }
 
-    public void onPause(){
+    @Override
+    public void onPause() {
         super.onPause();
-        //this will refresh the osmdroid configuration on resuming.
-        //if you make changes to the configuration, use
-        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        //Configuration.getInstance().save(this, prefs);
-        map.onPause();  //needed for compass, my location overlays, v6.0.0 and up
+        myLocationNewOverlay.disableMyLocation();
+        map.onPause();
     }
 }
