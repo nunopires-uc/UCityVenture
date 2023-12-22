@@ -189,4 +189,7 @@ public class CustomAdapter extends ArrayAdapter<Ride> {
         });
     }
 
+
+
+
 }

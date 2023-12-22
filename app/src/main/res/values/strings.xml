@@ -23,4 +23,6 @@ Esqueceu-se da palavra-passe?
     <string name="title_activity_service_ride_profile">ServiceRideProfileActivity</string>
     <!--  TODO: Remove or change this placeholder text  -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="searchDestinationPlaceholder">Procurar destino ...</string>
+    <string name="searchOriginPlaceholder">Procurar origem ...</string>
 </resources>
