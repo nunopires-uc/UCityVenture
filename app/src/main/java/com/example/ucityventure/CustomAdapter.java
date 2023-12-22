@@ -54,6 +54,26 @@ public class CustomAdapter extends ArrayAdapter<Ride> {
         rideDesc.setText("Desde " + ride.getOrigin());
         rideCount.setText(ride.getRidePassangers().size() + "/" + ride.getRideCapacity());
 
+        if(ride.getRidePassangers().size() >= ride.getRideCapacity()){
+            //cheia
+            rideButton.setEnabled(false);
+            rideButton.setText("Cheio");
+
+        } else {
+            //com vagas
+            rideButton.setEnabled(true);
+            rideButton.setText("Entrar");
+        }
+
+
+        rideButton.setOnClickListener(v -> {
+            if(ride.getRidePassangers().size() < ride.getRideCapacity()){
+                //tem vagas
+
+            } else {
+                //nao tem vagas
+            }
+        });
 
         convertView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
