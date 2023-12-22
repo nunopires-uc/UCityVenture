@@ -99,6 +99,9 @@ public class LoginFragment extends Fragment {
 
         mAuth = FirebaseAuth.getInstance();
 
+        emailInput.setText("dj8@uc.pt");
+        passwordInput.setText("123456");
+
         if(!CommonClass.isNetworkAvailable(getContext())){
             new AlertDialog.Builder(getActivity())
                     .setTitle("Não existe conexão à internet, deseja ligar o Wifi?")
@@ -126,7 +129,7 @@ public class LoginFragment extends Fragment {
                                 progressBar.setVisibility(View.GONE);
                                 if (task.isSuccessful()) {
                                     if(getActivity() instanceof MainActivity){
-                                        //((MainActivity)getActivity()).MudarFragmento(new FragmentListNotes());
+                                        ((MainActivity)getActivity()).MudarFragmento(new MainFragment());
                                     }
                                 } else {
                                     Snackbar.make(view, "Invalid email or password", Snackbar.LENGTH_LONG).show();
