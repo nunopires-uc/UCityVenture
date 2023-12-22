@@ -38,12 +38,11 @@
         <LinearLayout
             android:id="@+id/relativeLayout"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="30dp"
             android:gravity="center"
             android:layout_marginEnd="30dp"
             android:layout_marginStart="30dp"
             android:layout_marginTop="10dp"
-            android:layout_weight=".28"
             android:background="@drawable/rounded_edges_bg"
             android:orientation="horizontal">
 
@@ -70,12 +69,11 @@
         <LinearLayout
             android:id="@+id/relativeLayout2"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="30dp"
             android:gravity="center"
             android:layout_marginEnd="30dp"
             android:layout_marginStart="30dp"
             android:layout_marginTop="10dp"
-            android:layout_weight=".28"
             android:background="@drawable/rounded_edges_bg"
             android:orientation="horizontal">
 
@@ -112,6 +110,7 @@
                 android:layout_height="60dp"
                 android:layout_marginStart="28dp"
                 android:layout_marginTop="10dp"
+                android:layout_marginRight="5dp"
                 android:background="@drawable/rounded_edges_bg"
                 android:drawableLeft="@drawable/ic_baseline_directions_car_24"
                 android:drawablePadding="10dp"
@@ -194,7 +193,7 @@
                 android:layout_width="350dp"
                 android:layout_height="60dp"
                 android:layout_marginStart="28dp"
-                android:layout_marginTop="84dp"
+                android:layout_marginTop="10dp"
                 android:background="@drawable/rounded_edges_bg"
                 android:drawableLeft="@drawable/ic_baseline_info_24"
                 android:drawablePadding="10dp"
@@ -208,9 +207,10 @@
             <Button
                 android:id="@+id/createRideButton"
                 android:layout_width="250dp"
+                android:layout_gravity="center"
+                android:gravity="center"
                 android:layout_height="65dp"
                 android:layout_marginTop="10dp"
-                android:layout_marginEnd="28dp"
                 android:background="@drawable/rounded_edges_button"
                 android:drawableEnd="@drawable/ic_baseline_directions_car_24"
                 android:fontFamily="@font/ubuntu_medium"
