@@ -127,7 +127,11 @@ public class MapsFragment extends Fragment {
             }
         });
         map.getOverlays().add(0, mapEventsOverlay);
-        
+
+        map.setHorizontalMapRepetitionEnabled(false);
+        map.setVerticalMapRepetitionEnabled(false);
+        map.setScrollableAreaLimitLatitude(MapView.getTileSystem().getMaxLatitude(), MapView.getTileSystem().getMinLatitude(), 0);
+        map.setScrollableAreaLimitLongitude(MapView.getTileSystem().getMinLongitude(), MapView.getTileSystem().getMaxLongitude(), 0);
 
         // Run onFirstFix to get the user's location
         myLocationNewOverlay.runOnFirstFix(new Runnable() {
