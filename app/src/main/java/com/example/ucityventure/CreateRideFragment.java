@@ -2,6 +2,8 @@ package com.example.ucityventure;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -11,16 +13,23 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.type.LatLng;
+
+import java.time.LocalDateTime;
+import java.util.Calendar;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -97,7 +106,7 @@ public class CreateRideFragment extends Fragment {
         infoInput = view.findViewById(R.id.infoInput);
 
         //perms
-        if (ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             new AlertDialog.Builder(getActivity())
                     .setTitle("Permissões em falta!")
                     .setMessage("Pretende permitir à aplicação o uso dos serviços de localização?")
@@ -134,6 +143,60 @@ public class CreateRideFragment extends Fragment {
         originInput.setAdapter(adapter);
         destinationInput.setAdapter(adapter2);
 
+        final Calendar c = Calendar.getInstance();
+        year = c.get(Calendar.YEAR);
+        month = c.get(Calendar.MONTH);
+        day = c.get(Calendar.DAY_OF_MONTH);
+        hour = c.get(Calendar.HOUR_OF_DAY);
+        minute = c.get(Calendar.MINUTE);
+        LocalDateTime rideDate;
 
+        //handler matriculas
+        licenseInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if(editable.length() == 2){
+                    editable.append("-");
+                }
+                if(editable.length() == 5){
+                    editable.append("-");
+                }
+
+                if(editable.toString().contains("---")){
+                    editable.clear();
+                }
+            }
+        });
+
+        timeInput.setOnClickListener(v -> {
+            DatePickerDialog picker = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
+                @Override
+                public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                    year = year;
+                    month = month;
+                    day = day;
+                    int finalDay = day;
+                    int finalMonth = month+1;
+                    int finalYear = year;
+                    TimePickerDialog timePickerDialog = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener()
+                    {
+                        @Override
+                        public void onTimeSet(TimePicker timePicker, int houra, int min) {
+                            hour = houra;
+                            minute = min;
+                            timeInput.setText(finalDay + "/" + finalMonth + "/" + finalYear + " " + hour + ":" + minute);
+                        }
+                    },hour,minute,false);
+                    timePickerDialog.show();
+                }
+            }, year, month,day);
+            picker.show();
+        });
     }
 }
