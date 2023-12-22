@@ -111,6 +111,7 @@ public class MainFragment extends Fragment {
     }
 
     public void populateListFromDatabase(View v){
+        ridesList.clear();
         executor.execute(() -> {
             db.collection("rides")
                     .get()
