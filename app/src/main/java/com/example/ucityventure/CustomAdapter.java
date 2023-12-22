@@ -190,6 +190,20 @@ public class CustomAdapter extends ArrayAdapter<Ride> {
     }
 
 
+    public void filter(String originQuery, String destinationQuery){
+        List<Ride> filteredItems = new ArrayList<>();
+        for (Ride item : defaultList) {
+            if (item.getOrigin().toLowerCase().contains(originQuery.toLowerCase()) && item.getDestination().toLowerCase().contains(destinationQuery.toLowerCase())) {
+
+                filteredItems.add(item);
+            }
+        }
+        clear();
+        addAll(filteredItems);
+        notifyDataSetChanged();
+    }
+
+
 
 
 }

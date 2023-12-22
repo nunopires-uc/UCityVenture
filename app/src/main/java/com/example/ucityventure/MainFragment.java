@@ -13,14 +13,18 @@ import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ListView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -54,7 +58,11 @@ public class MainFragment extends Fragment {
 
 
     CustomAdapter adapter;
-    ArrayList<Ride> ridesList;
+    ArrayList<Ride> ridesList, defaultList;
+
+
+
+    EditText originInput, destinationInput;
 
 
 
@@ -87,24 +95,64 @@ public class MainFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+
+
 
 
 
         v = inflater.inflate(R.layout.main_fragment, container, false);
+
+        originInput = v.findViewById(R.id.originInput);
+        destinationInput = v.findViewById(R.id.destinationInput);
 
         ridesList = new ArrayList<>();
 
         adapter = new CustomAdapter(requireActivity(), ridesList);
 
         if(getActivity() != null){
+
+            defaultList = new ArrayList<>(ridesList);
+
             ListView listView = v.findViewById(R.id.ListViewRides);
             listView.setAdapter(adapter);
 
             listenForChanges(v);
         }
 
+        originInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                filterListByText(originInput.getText().toString(), destinationInput.getText().toString());
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
+        destinationInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                filterListByText(originInput.getText().toString(), destinationInput.getText().toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
 
 
         return v;
@@ -210,5 +258,10 @@ public class MainFragment extends Fragment {
         return activeNetworkInfo != null;
     }
 
+    public void filterListByText(String originQuery, String destinationQuery){
+        if(adapter != null){
 
+            adapter.filter(originQuery, destinationQuery);
+        }
+    }
 }
