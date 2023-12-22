@@ -1,7 +1,10 @@
 package com.example.ucityventure;
 
 import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -11,9 +14,13 @@ import androidx.fragment.app.Fragment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.common.util.CollectionUtils;
+
+import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
@@ -21,8 +28,13 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -82,18 +94,44 @@ public class MapsFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_maps, container, false);
     }
 
+    private Marker marker; // Keep a reference to the marker
+
     private void addMarkerAtLocation(GeoPoint p) {
+        if (marker != null) {
+            // Remove the existing marker
+            map.getOverlays().remove(marker);
+        }
+
         // Create a marker at the specified location
-        Marker marker = new Marker(map);
+        marker = new Marker(map);
         marker.setPosition(p);
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
         map.getOverlays().add(marker);
         map.invalidate();
 
+        Address currentpoint = getAddressFromLocation(p);
+        Log.d("End", currentpoint.getAddressLine(0));
+
+
+
         // Use a geocoding service to get the street name
         // Note: This is a placeholder, replace with your chosen geocoding service
-        //String streetName = getStreetName(p);
-        Log.i("MapsFragment", "Selected location: "  + ", " + p.getLatitude() + ", " + p.getLongitude());
+        // String streetName = getStreetName(p);
+        Log.i("MapsFragment", "Selected location: " + ", " + p.getLatitude() + ", " + p.getLongitude());
+    }
+
+    public Address getAddressFromLocation(GeoPoint p){
+        Geocoder geocoder;
+        List<Address> addresses;
+        geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.getDefault());
+
+        try {
+            addresses = geocoder.getFromLocation(p.getLatitude(), p.getLongitude(), 1);
+            Address add = addresses.get(0);
+            return add;
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -106,49 +144,31 @@ public class MapsFragment extends Fragment {
         // Initialize the map view
         map = (MapView) view.findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
+        map.setBuiltInZoomControls(true);
+        map.setMultiTouchControls(true);
+        IMapController mapController = map.getController();
+        mapController.setZoom(9.5);
+        GeoPoint startPoint = new GeoPoint(48.8583, 2.2944);
+        mapController.setCenter(startPoint);
+        addMarkerAtLocation(startPoint);
 
-        // Initialize MyLocationNewOverlay
-        myLocationNewOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(ctx), map);
-        myLocationNewOverlay.enableMyLocation();
-        map.getOverlays().add(myLocationNewOverlay);
-
-        // Set up the mapEventsOverlay for long press
         MapEventsOverlay mapEventsOverlay = new MapEventsOverlay(new MapEventsReceiver() {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
+                // Handle single tap if needed
                 return false;
             }
 
             @Override
             public boolean longPressHelper(GeoPoint p) {
-                // Long press detected, add a marker and get the street name
+                // Handle long press (add a marker at the long-pressed location)
                 addMarkerAtLocation(p);
                 return true;
             }
         });
+
+        // Add MapEventsOverlay to the map
         map.getOverlays().add(0, mapEventsOverlay);
-
-        map.setHorizontalMapRepetitionEnabled(false);
-        map.setVerticalMapRepetitionEnabled(false);
-        map.setScrollableAreaLimitLatitude(MapView.getTileSystem().getMaxLatitude(), MapView.getTileSystem().getMinLatitude(), 0);
-        map.setScrollableAreaLimitLongitude(MapView.getTileSystem().getMinLongitude(), MapView.getTileSystem().getMaxLongitude(), 0);
-
-        // Run onFirstFix to get the user's location
-        myLocationNewOverlay.runOnFirstFix(new Runnable() {
-            public void run() {
-                GeoPoint myLocation = myLocationNewOverlay.getMyLocation();
-
-                Log.d("Location", myLocation.toDoubleString());
-                // Center the map on the user's location
-                map.getController().setCenter(myLocation);
-                // Set an appropriate zoom level (adjust the value as needed)
-                map.getController().setZoom(15.0);
-                // Animate to the user's location
-                map.getController().animateTo(myLocation);
-                // Add a marker at the user's location
-                addMarkerAtLocation(myLocation);
-            }
-        });
     }
 
 
@@ -156,14 +176,14 @@ public class MapsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        myLocationNewOverlay.enableMyLocation();
+        //myLocationNewOverlay.enableMyLocation();
         map.onResume();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        myLocationNewOverlay.disableMyLocation();
+        //myLocationNewOverlay.disableMyLocation();
         map.onPause();
     }
 }
