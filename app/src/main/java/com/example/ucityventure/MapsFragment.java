@@ -1,12 +1,21 @@
 package com.example.ucityventure;
 
+import android.content.Context;
+import android.location.Location;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import org.osmdroid.config.Configuration;
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.views.MapView;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -23,6 +32,8 @@ public class MapsFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    MapView map = null;
 
     public MapsFragment() {
         // Required empty public constructor
@@ -60,5 +71,40 @@ public class MapsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_maps, container, false);
+    }
+
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+
+        //load/initialize the osmdroid configuration, this can be done
+        Context ctx = getActivity().getApplicationContext();
+        Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
+        //setting this before the layout is inflated is a good idea
+        //it 'should' ensure that the map has a writable location for the map cache, even without permissions
+        //if no tiles are displayed, you can try overriding the cache path using Configuration.getInstance().setCachePath
+        //see also StorageUtils
+        //note, the load method also sets the HTTP User Agent to your application's package name, abusing osm's tile servers will get you banned based on this string
+
+        map = (MapView) view.findViewById(R.id.map);
+        map.setTileSource(TileSourceFactory.MAPNIK);
+    }
+
+    public void onResume(){
+        super.onResume();
+        //this will refresh the osmdroid configuration on resuming.
+        //if you make changes to the configuration, use
+        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        //Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
+        map.onResume(); //needed for compass, my location overlays, v6.0.0 and up
+    }
+
+    public void onPause(){
+        super.onPause();
+        //this will refresh the osmdroid configuration on resuming.
+        //if you make changes to the configuration, use
+        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        //Configuration.getInstance().save(this, prefs);
+        map.onPause();  //needed for compass, my location overlays, v6.0.0 and up
     }
 }
