@@ -2,9 +2,13 @@ package com.example.ucityventure;
 
 import static android.content.ContentValues.TAG;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
@@ -18,9 +22,14 @@ import android.widget.ListView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.MetadataChanges;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import org.checkerframework.checker.units.qual.A;
 
 import java.util.ArrayList;
 import java.util.concurrent.Executor;
@@ -84,7 +93,18 @@ public class MainFragment extends Fragment {
 
         v = inflater.inflate(R.layout.main_fragment, container, false);
 
-        ListView listView = v.findViewById(R.id.ListViewNotes);
+        ridesList = new ArrayList<>();
+
+        adapter = new CustomAdapter(requireActivity(), ridesList);
+
+        if(getActivity() != null){
+            ListView listView = v.findViewById(R.id.ListViewRides);
+            listView.setAdapter(adapter);
+
+            listenForChanges(v);
+        }
+
+
 
 
         return v;
@@ -115,7 +135,7 @@ public class MainFragment extends Fragment {
                                             String provider = document.getData().get("provider").toString();
                                             int rideCapacity = Integer.parseInt(document.getData().get("rideCapacity").toString());
 
-                                            String ridePassangers = document.getData().get("ridePassangers").toString();
+                                            ArrayList<String> ridePassangers = (ArrayList<String>) document.getData().get("ridePassangers");
 
                                             String state = document.getData().get("state").toString();
                                             String time = document.getData().get("time").toString();
@@ -129,18 +149,18 @@ public class MainFragment extends Fragment {
                                             ride.setOriginLon(originLon);
                                             ride.setProvider(provider);
                                             ride.setRideCapacity(rideCapacity);
-                                            //ride.setRideCapacity(ridePassangers);
+                                            ride.setRidePassangers(ridePassangers);
                                             ride.setState(state);
                                             ride.setTime(time);
 
-                                            System.out.println(ride.toString());
+
                                             ridesList.add(ride);
 
 
                                             adapter = new CustomAdapter(requireActivity(), ridesList);
                                             //defaultList = new ArrayList<>(cardItems);
                                             // Find the ListView and set the adapter
-                                            ListView listView = v.findViewById(R.id.ListViewNotes);
+                                            ListView listView = v.findViewById(R.id.ListViewRides);
                                             listView.removeAllViewsInLayout();
                                             listView.setAdapter(adapter);
                                         }
@@ -155,5 +175,33 @@ public class MainFragment extends Fragment {
                         }
                     });
         });
+    }
+
+    void listenForChanges(View v){
+
+        executor.execute(()-> {
+            db.collection("rides")
+                    .addSnapshotListener(MetadataChanges.EXCLUDE, new EventListener<QuerySnapshot>() {
+                        @Override
+                        public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                            if (e != null) {
+                                Log.w(TAG, "Listen failed.", e);
+                                return;
+                            }
+
+                            for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                                Log.d(TAG, "IT CHANGED");
+                            }
+                            //cardItems.clear();
+                            populateListFromDatabase(v);
+                        }
+                    });
+        });
+    }
+
+    public boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null;
     }
 }
