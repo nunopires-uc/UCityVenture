@@ -16,6 +16,8 @@ public class Ride {
     private String state;
     private String time;
 
+    private String id;
+
     public Ride() {
     }
 
@@ -121,6 +123,14 @@ public class Ride {
         this.time = time;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Ride{");
@@ -135,6 +145,7 @@ public class Ride {
         sb.append(", ridePassangers=").append(ridePassangers);
         sb.append(", state='").append(state).append('\'');
         sb.append(", time='").append(time).append('\'');
+        sb.append(", id='").append(id).append('\'');
         sb.append('}');
         return sb.toString();
     }

@@ -141,6 +141,9 @@ public class MainFragment extends Fragment {
                                             String state = document.getData().get("state").toString();
                                             String time = document.getData().get("time").toString();
 
+
+                                            String id = document.getId();
+
                                             Ride ride = new Ride();
                                             ride.setDestination(destination);
                                             ride.setInfo(info);
@@ -153,6 +156,7 @@ public class MainFragment extends Fragment {
                                             ride.setRidePassangers(ridePassangers);
                                             ride.setState(state);
                                             ride.setTime(time);
+                                            ride.setId(id);
 
 
                                             ridesList.add(ride);
