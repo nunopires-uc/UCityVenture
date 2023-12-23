@@ -53,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
         invalidateOptionsMenu();
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -61,6 +60,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        CarregarFragmento(new LoginFragment());
+        CarregarFragmento(new CreateRideFragment());
     }
 }

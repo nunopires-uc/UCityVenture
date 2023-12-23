@@ -1,14 +1,18 @@
 package com.example.ucityventure;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import android.preference.PreferenceManager;
@@ -17,6 +21,8 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.android.gms.common.util.CollectionUtils;
 
@@ -54,7 +60,16 @@ public class MapsFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
+    TextView subTitle;
+    Button setPosButton;
+
     MapView map = null;
+
+    Address currentpoint;
+
+    IMapController mapController;
+
+    private static final int MY_PERMISSIONS_REQUEST_LOCATION = 123;
 
     public MapsFragment() {
         // Required empty public constructor
@@ -87,11 +102,13 @@ public class MapsFragment extends Fragment {
         }
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_maps, container, false);
+        View view = inflater.inflate(R.layout.fragment_maps, container, false);
+        return view;
     }
 
     private Marker marker; // Keep a reference to the marker
@@ -109,18 +126,18 @@ public class MapsFragment extends Fragment {
         map.getOverlays().add(marker);
         map.invalidate();
 
-        Address currentpoint = getAddressFromLocation(p);
+        currentpoint = getAddressFromLocation(p);
         Log.d("End", currentpoint.getAddressLine(0));
 
-
-
+        subTitle.setText(currentpoint.getAddressLine(0).toString());
         // Use a geocoding service to get the street name
         // Note: This is a placeholder, replace with your chosen geocoding service
         // String streetName = getStreetName(p);
         Log.i("MapsFragment", "Selected location: " + ", " + p.getLatitude() + ", " + p.getLongitude());
+
     }
 
-    public Address getAddressFromLocation(GeoPoint p){
+    public Address getAddressFromLocation(GeoPoint p) {
         Geocoder geocoder;
         List<Address> addresses;
         geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.getDefault());
@@ -137,20 +154,48 @@ public class MapsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+
+        subTitle = view.findViewById(R.id.subTitle);
+        setPosButton = view.findViewById(R.id.setPosButton);
+
         // Load/initialize the osmdroid configuration
         Context ctx = getActivity().getApplicationContext();
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
-
         // Initialize the map view
         map = (MapView) view.findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
-        IMapController mapController = map.getController();
+        mapController = map.getController();
         mapController.setZoom(9.5);
+
+
+
+        /*LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+        Log.d("Sl", location.toString());
+
+        if (location != null) {
+            Log.d("Sl", location.toString());
+        } else {
+            Log.d("Sl", "Location is null");
+        }*/
+
         GeoPoint startPoint = new GeoPoint(48.8583, 2.2944);
         mapController.setCenter(startPoint);
         addMarkerAtLocation(startPoint);
+
 
         MapEventsOverlay mapEventsOverlay = new MapEventsOverlay(new MapEventsReceiver() {
             @Override
@@ -169,6 +214,14 @@ public class MapsFragment extends Fragment {
 
         // Add MapEventsOverlay to the map
         map.getOverlays().add(0, mapEventsOverlay);
+
+
+        setPosButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
     }
 
 
@@ -176,14 +229,17 @@ public class MapsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        //myLocationNewOverlay.enableMyLocation();
-        map.onResume();
+        if (map != null) {
+            map.onResume();
+        }
     }
+
 
     @Override
     public void onPause() {
         super.onPause();
-        //myLocationNewOverlay.disableMyLocation();
-        map.onPause();
+        if (map != null) {
+            map.onPause();
+        }
     }
 }
