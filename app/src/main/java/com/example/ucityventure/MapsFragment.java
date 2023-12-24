@@ -150,11 +150,16 @@ public class MapsFragment extends Fragment {
 
         try {
             addresses = geocoder.getFromLocation(p.getLatitude(), p.getLongitude(), 1);
-            Address add = addresses.get(0);
-            return add;
+            if (!addresses.isEmpty()) {
+                Address add = addresses.get(0);
+                return add;
+            } else {
+                // handle case where no addresses were found
+            }
         } catch (IOException e) {
-            return null;
+            // handle exception
         }
+        return null;
     }
 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -226,7 +231,7 @@ public class MapsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Log.i("emoji", selectedGeoPoint.toString());
-                //model.selectGeoPoint(selectedGeoPoint);
+                model.selectGeoPoint(selectedGeoPoint);
                 // Update other data in the model
                 // Navigate back to CreateRideFragment
             }
