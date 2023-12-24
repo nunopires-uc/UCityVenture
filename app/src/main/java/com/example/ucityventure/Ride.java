@@ -10,7 +10,6 @@ public class Ride {
     private float originLat;
     private float originLon;
     private String provider;
-
     private int rideCapacity;
     private ArrayList<String> ridePassangers;
     private String state;

@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -165,9 +166,12 @@ public class MapsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        model = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+
 
         subTitle = view.findViewById(R.id.subTitle);
         setPosButton = view.findViewById(R.id.setPosButton);
+        GeoPoint startPoint;
 
         // Load/initialize the osmdroid configuration
         Context ctx = getActivity().getApplicationContext();
@@ -180,30 +184,12 @@ public class MapsFragment extends Fragment {
         mapController = map.getController();
         mapController.setZoom(9.5);
 
-
-
-        /*LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
+        if(currentLocalGeoPoint != null){
+            startPoint = new GeoPoint(currentLocalGeoPoint.getLatitude(), currentLocalGeoPoint.getLongitude());
+        }else{
+            startPoint = new GeoPoint(48.8583, 2.2944);
         }
-        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
-        Log.d("Sl", location.toString());
-
-        if (location != null) {
-            Log.d("Sl", location.toString());
-        } else {
-            Log.d("Sl", "Location is null");
-        }*/
-
-        GeoPoint startPoint = new GeoPoint(48.8583, 2.2944);
         mapController.setCenter(startPoint);
         addMarkerAtLocation(startPoint);
 
@@ -231,12 +217,17 @@ public class MapsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Log.i("emoji", selectedGeoPoint.toString());
-                model.selectGeoPoint(selectedGeoPoint);
+                if(model != null){
+                    CompoundLocation cl = new CompoundLocation(currentpoint, selectedGeoPoint.getLatitude(), selectedGeoPoint.getLongitude());
+                    model.selectGeoPoint(selectedGeoPoint);
+                    if(getParentFragmentManager() != null){
+                        getParentFragmentManager().popBackStack();
+                    }
+                }
                 // Update other data in the model
                 // Navigate back to CreateRideFragment
             }
         });
-
     }
 
 

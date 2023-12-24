@@ -8,6 +8,7 @@ import org.osmdroid.util.GeoPoint;
 
 public class SharedViewModel extends ViewModel {
     private final MutableLiveData<GeoPoint> selectedGeoPoint = new MutableLiveData<>();
+    private final MutableLiveData<CompoundLocation> MarkerCompoundLocation = new MutableLiveData<>();
     // Add other MutableLiveData for other data
 
     public void selectGeoPoint(GeoPoint geoPoint) {
@@ -17,5 +18,12 @@ public class SharedViewModel extends ViewModel {
     public LiveData<GeoPoint> getSelectedGeoPoint() {
         return selectedGeoPoint;
     }
-    // Add other getters and setters for other data
+
+    public void selectCompoundLocation(CompoundLocation cl){
+        MarkerCompoundLocation.setValue(cl);
+    }
+
+    public LiveData<CompoundLocation> getSelectedCompoundLocation(){
+        return MarkerCompoundLocation;
+    }
 }

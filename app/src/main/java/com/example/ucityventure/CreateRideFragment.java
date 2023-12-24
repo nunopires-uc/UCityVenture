@@ -39,7 +39,11 @@ import com.google.type.LatLng;
 import org.osmdroid.util.GeoPoint;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -200,8 +204,15 @@ public class CreateRideFragment extends Fragment {
         }
 
         model = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
-        model.getSelectedGeoPoint().observe(getViewLifecycleOwner(), geoPoint -> {
+        /*model.getSelectedGeoPoint().observe(getViewLifecycleOwner(), geoPoint -> {
             Log.d("CHEGOU!!", geoPoint.toString());
+            locationInput.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_gps_fixed_24_blue, 0, 0, 0);
+            locationInput.setText("Localização - Guardada");
+        });*/
+
+        model.getSelectedCompoundLocation().observe(getViewLifecycleOwner(), cl -> {
+            locationInput.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_gps_fixed_24_blue, 0, 0, 0);
+            locationInput.setText(cl.getLocationAddress().getAddressLine(0).toString());
         });
 
 
@@ -230,6 +241,9 @@ public class CreateRideFragment extends Fragment {
 
         //handler matriculas
         licenseInput.addTextChangedListener(new TextWatcher() {
+
+            int maxLength = 8;
+
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
 
@@ -247,6 +261,12 @@ public class CreateRideFragment extends Fragment {
 
                 if(editable.toString().contains("---")){
                     editable.clear();
+                }
+
+                // Check if the current length exceeds the maximum length
+                if (editable.length() > maxLength) {
+                    // Trim the text to the maximum length
+                    editable.delete(maxLength, editable.length());
                 }
             }
         });
@@ -284,6 +304,132 @@ public class CreateRideFragment extends Fragment {
             ((MainActivity)getActivity()).MudarFragmentoPOP(mapsFragment);
 
             Log.d("MyLocal$", currentLocalGeoPoint.toString());
+        });
+
+        createRideButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String origem = originInput.getSelectedItem().toString();
+                String destino = destinationInput.getSelectedItem().toString();
+                String matricula = licenseInput.getText().toString();
+                String info = infoInput.getText().toString();
+
+                /*
+                if(!origem.equals("") && !origem.equals("Origem") && !origem.equals(destino)){
+                    if(!destino.equals("") && !destino.equals("Destino") && !destino.equals(origem)){
+                        if(!matricula.equals("") && matricula.length() == 8){
+                            if(!timeInput.getText().toString().equals("")){
+                                DateTimeFormatter formatter = null;
+                                LocalDateTime horaSaida = null;
+                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                                    formatter = DateTimeFormatter.ofPattern("d/M/yyyy H:m");
+                                    DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+                                    horaSaida = LocalDateTime.parse(timeInput.getText().toString(), formatter);
+                                }
+
+                                if(!locationInput.getText().toString().equals("")){
+                                    Double originLat = originPt.latitude;
+                                    Double originLon = originPt.longitude;
+                                    if(!capacityInput.getText().toString().equals("")){
+                                        int lugares = Integer.parseInt(capacityInput.getText().toString());
+
+                                        String p = "rides";
+                                        DatabaseReference databaseReference = firebaseDatabase.getReference(p);
+                                        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                List<Integer> ids = new ArrayList<>();
+                                                for (DataSnapshot childSnapshot: dataSnapshot.getChildren()) {
+                                                    User user = childSnapshot.getValue(User.class);
+                                                    System.out.println(user.getId());
+                                                    ids.add(user.getId());
+                                                }
+
+                                                int lastID = Collections.max(ids);
+
+                                                //nova ride
+                                                Ride newRide = new Ride();
+                                                newRide.setOrigin(origem);
+                                                newRide.setDestination(destino);
+                                                newRide.setId(lastID+1);
+                                                newRide.setInfo(info);
+                                                newRide.setProvider(finalCurrentUser.getId());
+                                                newRide.setRiderCapacity(lugares);
+                                                newRide.setRiderCount(0);
+                                                newRide.setRiders("");
+                                                newRide.setTime(horaSaida.getDayOfMonth() + "/" + horaSaida.getMonth().getValue() + "/" + horaSaida.getYear() + " " + horaSaida.getHour() + ":" + horaSaida.getMinute() + ":00");
+                                                newRide.setLicense(matricula);
+                                                newRide.setOriginLat(originLat);
+                                                newRide.setOriginLon(originLon);
+                                                newRide.setState("ongoing");
+
+
+
+                                                String p = "rides/" + newRide.getId();
+                                                DatabaseReference databaseReferenceAdd = firebaseDatabase.getReference(p);
+                                                databaseReferenceAdd.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                    @Override
+                                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                        if(snapshot.exists()){
+                                                            System.out.println("Já existe uma boleia com od id " + newRide.getId());
+
+                                                        } else {
+                                                            databaseReferenceAdd.setValue(newRide);
+                                                            Toast toast = Toast.makeText(getApplicationContext(), "Nova boleia adicionada!", Toast.LENGTH_LONG);
+                                                            toast.show();
+                                                            System.out.println("Nova boleia adicionada!");
+                                                            finish(); //Voltar para o menu principal
+
+                                                        }
+                                                    }
+
+                                                    @Override
+                                                    public void onCancelled(@NonNull DatabaseError error) {
+
+                                                    }
+                                                });
+
+
+
+
+                                            }
+
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+
+                                            }
+                                        });
+                                    } else {
+                                        Toast toast = Toast.makeText(getApplicationContext(), "Capacidade incorreta", Toast.LENGTH_LONG);
+                                        toast.show();
+                                        System.out.println("Capacidade incorreta");
+                                    }
+                                } else {
+                                    Toast toast = Toast.makeText(getApplicationContext(), "Localização incorreta", Toast.LENGTH_LONG);
+                                    toast.show();
+                                    System.out.println("Localização incorreta");
+                                }
+                            } else {
+                                Toast toast = Toast.makeText(getApplicationContext(), "Data incorreta", Toast.LENGTH_LONG);
+                                toast.show();
+                                System.out.println("Data incorreta");
+                            }
+                        } else {
+                            Toast toast = Toast.makeText(getApplicationContext(), "Matrícula incorreta!", Toast.LENGTH_LONG);
+                            toast.show();
+                            System.out.println("Matrícula incorreta!");
+                        }
+                    } else {
+                        Toast toast = Toast.makeText(getApplicationContext(), "Destino incorreto!", Toast.LENGTH_LONG);
+                        toast.show();
+                        System.out.println("Destino incorreto!");
+                    }
+                } else {
+                    Toast toast = Toast.makeText(getApplicationContext(), "Origem incorreta!", Toast.LENGTH_LONG);
+                    toast.show();
+                    System.out.println("Origem incorreta!");
+                }*/
+            }
         });
     }
 }
