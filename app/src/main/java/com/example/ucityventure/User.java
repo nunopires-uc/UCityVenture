@@ -5,9 +5,9 @@ public class User {
     private String id;
     private String nome;
     private int numRatings;
-    private float somaRatings;
+    private Float somaRatings;
 
-    public User(String email, String id, String nome, int numRatings, float somaRatings) {
+    public User(String email, String id, String nome, int numRatings, Float somaRatings) {
         this.email = email;
         this.id = id;
         this.nome = nome;
@@ -50,11 +50,11 @@ public class User {
         this.numRatings = numRatings;
     }
 
-    public float getSomaRatings() {
+    public Float getSomaRatings() {
         return somaRatings;
     }
 
-    public void setSomaRatings(float somaRatings) {
+    public void setSomaRatings(Float somaRatings) {
         this.somaRatings = somaRatings;
     }
 

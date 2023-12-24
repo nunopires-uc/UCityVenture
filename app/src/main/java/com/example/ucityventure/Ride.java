@@ -7,20 +7,26 @@ public class Ride {
     private String info;
     private String license;
     private String origin;
-    private float originLat;
-    private float originLon;
+    private Double originLat;
+    private Double originLon;
     private String provider;
     private int rideCapacity;
     private ArrayList<String> ridePassangers;
     private String state;
-    private String time;
+    private String time, id;
 
-    private String id;
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public Ride() {
     }
 
-    public Ride(String destination, String info, String license, String origin, float originLat, float originLon, String provider, int rideCapacity, ArrayList<String> ridePassangers, String state, String time) {
+    public Ride(String destination, String info, String license, String origin, Double originLat, Double originLon, String provider, int rideCapacity, ArrayList<String> ridePassangers, String state, String time) {
         this.destination = destination;
         this.info = info;
         this.license = license;
@@ -66,19 +72,19 @@ public class Ride {
         this.origin = origin;
     }
 
-    public float getOriginLat() {
+    public Double getOriginLat() {
         return originLat;
     }
 
-    public void setOriginLat(float originLat) {
+    public void setOriginLat(Double originLat) {
         this.originLat = originLat;
     }
 
-    public float getOriginLon() {
+    public Double getOriginLon() {
         return originLon;
     }
 
-    public void setOriginLon(float originLon) {
+    public void setOriginLon(Double originLon) {
         this.originLon = originLon;
     }
 
@@ -122,13 +128,6 @@ public class Ride {
         this.time = time;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 
     @Override
     public String toString() {
@@ -144,7 +143,6 @@ public class Ride {
         sb.append(", ridePassangers=").append(ridePassangers);
         sb.append(", state='").append(state).append('\'');
         sb.append(", time='").append(time).append('\'');
-        sb.append(", id='").append(id).append('\'');
         sb.append('}');
         return sb.toString();
     }

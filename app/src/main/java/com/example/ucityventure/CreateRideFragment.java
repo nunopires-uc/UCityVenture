@@ -12,6 +12,7 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -34,6 +35,11 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.type.LatLng;
 
 import org.osmdroid.util.GeoPoint;
@@ -77,9 +83,13 @@ public class CreateRideFragment extends Fragment {
 
     GeoPoint currentLocalGeoPoint;
 
+    FirebaseFirestore db;
+
     Location currentLocation;
 
     LatLng originPt;
+
+    Double Latitude, Longitude;
 
     public CreateRideFragment() {
         // Required empty public constructor
@@ -130,6 +140,7 @@ public class CreateRideFragment extends Fragment {
         licenseInput = view.findViewById(R.id.licenseInput);
         capacityInput = view.findViewById(R.id.capacityInput);
         infoInput = view.findViewById(R.id.infoInput);
+        db = FirebaseFirestore.getInstance();
 
         //perms
         if (ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -197,6 +208,7 @@ public class CreateRideFragment extends Fragment {
                     if (location != null) {
                         currentLocalGeoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
                         System.out.println(location.getLatitude() + " /// " + location.getLongitude());
+
                     }
                 }
                 // Implement other methods as necessary
@@ -213,6 +225,8 @@ public class CreateRideFragment extends Fragment {
         model.getSelectedCompoundLocation().observe(getViewLifecycleOwner(), cl -> {
             locationInput.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_gps_fixed_24_blue, 0, 0, 0);
             locationInput.setText(cl.getLocationAddress().getAddressLine(0).toString());
+            Latitude = cl.getLatitude();
+            Longitude = cl.getLongitude();
         });
 
 
@@ -314,121 +328,95 @@ public class CreateRideFragment extends Fragment {
                 String matricula = licenseInput.getText().toString();
                 String info = infoInput.getText().toString();
 
-                /*
+
                 if(!origem.equals("") && !origem.equals("Origem") && !origem.equals(destino)){
                     if(!destino.equals("") && !destino.equals("Destino") && !destino.equals(origem)){
                         if(!matricula.equals("") && matricula.length() == 8){
                             if(!timeInput.getText().toString().equals("")){
                                 DateTimeFormatter formatter = null;
                                 LocalDateTime horaSaida = null;
-                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                     formatter = DateTimeFormatter.ofPattern("d/M/yyyy H:m");
                                     DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
                                     horaSaida = LocalDateTime.parse(timeInput.getText().toString(), formatter);
                                 }
 
                                 if(!locationInput.getText().toString().equals("")){
-                                    Double originLat = originPt.latitude;
-                                    Double originLon = originPt.longitude;
                                     if(!capacityInput.getText().toString().equals("")){
                                         int lugares = Integer.parseInt(capacityInput.getText().toString());
+                                        //nova ride
+                                        Ride newRide = new Ride();
+                                        newRide.setOrigin(origem);
+                                        newRide.setDestination(destino);
+                                        newRide.setInfo(info);
+                                        newRide.setTime(String.valueOf(horaSaida));
+                                        //Meter uuid!!
+                                        newRide.setProvider("E4J3K2oCDgcCjJSe7Vn2yyV16yo1");
+                                        newRide.setRideCapacity(lugares);
+                                        newRide.setRidePassangers(new ArrayList<>());
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                            newRide.setTime(horaSaida.getDayOfMonth() + "/" + horaSaida.getMonth().getValue() + "/" + horaSaida.getYear() + " " + horaSaida.getHour() + ":" + horaSaida.getMinute() + ":00");
+                                        }
+                                        newRide.setLicense(matricula);
+                                        newRide.setOriginLat(Latitude);
+                                        newRide.setOriginLon(Longitude);
+                                        newRide.setState("ongoing");
 
-                                        String p = "rides";
-                                        DatabaseReference databaseReference = firebaseDatabase.getReference(p);
-                                        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                                List<Integer> ids = new ArrayList<>();
-                                                for (DataSnapshot childSnapshot: dataSnapshot.getChildren()) {
-                                                    User user = childSnapshot.getValue(User.class);
-                                                    System.out.println(user.getId());
-                                                    ids.add(user.getId());
-                                                }
+                                        //gera id aleatorio
+                                        String randomId = db.collection("rides").document().getId();
+                                        newRide.setId(randomId);
 
-                                                int lastID = Collections.max(ids);
-
-                                                //nova ride
-                                                Ride newRide = new Ride();
-                                                newRide.setOrigin(origem);
-                                                newRide.setDestination(destino);
-                                                newRide.setId(lastID+1);
-                                                newRide.setInfo(info);
-                                                newRide.setProvider(finalCurrentUser.getId());
-                                                newRide.setRiderCapacity(lugares);
-                                                newRide.setRiderCount(0);
-                                                newRide.setRiders("");
-                                                newRide.setTime(horaSaida.getDayOfMonth() + "/" + horaSaida.getMonth().getValue() + "/" + horaSaida.getYear() + " " + horaSaida.getHour() + ":" + horaSaida.getMinute() + ":00");
-                                                newRide.setLicense(matricula);
-                                                newRide.setOriginLat(originLat);
-                                                newRide.setOriginLon(originLon);
-                                                newRide.setState("ongoing");
-
-
-
-                                                String p = "rides/" + newRide.getId();
-                                                DatabaseReference databaseReferenceAdd = firebaseDatabase.getReference(p);
-                                                databaseReferenceAdd.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        db.collection("rides")
+                                                .document(randomId) // Use the random ID as the document ID
+                                                .set(newRide)       // Set the data for the document
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                     @Override
-                                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                        if(snapshot.exists()){
-                                                            System.out.println("Já existe uma boleia com od id " + newRide.getId());
-
-                                                        } else {
-                                                            databaseReferenceAdd.setValue(newRide);
-                                                            Toast toast = Toast.makeText(getApplicationContext(), "Nova boleia adicionada!", Toast.LENGTH_LONG);
-                                                            toast.show();
-                                                            System.out.println("Nova boleia adicionada!");
-                                                            finish(); //Voltar para o menu principal
-
-                                                        }
+                                                    public void onSuccess(Void aVoid) {
+                                                        Log.d("CreateRideFragment", "Boleia criada com sucesso " + randomId);
+                                                        Snackbar.make(view, "Boleia criada com sucesso", Snackbar.LENGTH_LONG).show();
                                                     }
-
+                                                })
+                                                .addOnFailureListener(new OnFailureListener() {
                                                     @Override
-                                                    public void onCancelled(@NonNull DatabaseError error) {
-
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Log.w("CreateRideFragment", "Erro ao criar boleia", e);
+                                                        Snackbar.make(view, "Erro ao criar boleia", Snackbar.LENGTH_LONG).show();
                                                     }
                                                 });
 
 
 
 
-                                            }
-
-                                            @Override
-                                            public void onCancelled(DatabaseError databaseError) {
-
-                                            }
-                                        });
                                     } else {
-                                        Toast toast = Toast.makeText(getApplicationContext(), "Capacidade incorreta", Toast.LENGTH_LONG);
+                                        Toast toast = Toast.makeText(getActivity().getApplicationContext(), "Capacidade incorreta", Toast.LENGTH_LONG);
                                         toast.show();
                                         System.out.println("Capacidade incorreta");
                                     }
                                 } else {
-                                    Toast toast = Toast.makeText(getApplicationContext(), "Localização incorreta", Toast.LENGTH_LONG);
+                                    Toast toast = Toast.makeText(getActivity().getApplicationContext(), "Localização incorreta", Toast.LENGTH_LONG);
                                     toast.show();
                                     System.out.println("Localização incorreta");
                                 }
                             } else {
-                                Toast toast = Toast.makeText(getApplicationContext(), "Data incorreta", Toast.LENGTH_LONG);
+                                Toast toast = Toast.makeText(getActivity().getApplicationContext(), "Data incorreta", Toast.LENGTH_LONG);
                                 toast.show();
                                 System.out.println("Data incorreta");
                             }
                         } else {
-                            Toast toast = Toast.makeText(getApplicationContext(), "Matrícula incorreta!", Toast.LENGTH_LONG);
+                            Toast toast = Toast.makeText(getActivity().getApplicationContext(), "Matrícula incorreta!", Toast.LENGTH_LONG);
                             toast.show();
                             System.out.println("Matrícula incorreta!");
                         }
                     } else {
-                        Toast toast = Toast.makeText(getApplicationContext(), "Destino incorreto!", Toast.LENGTH_LONG);
+                        Toast toast = Toast.makeText(getActivity().getApplicationContext(), "Destino incorreto!", Toast.LENGTH_LONG);
                         toast.show();
                         System.out.println("Destino incorreto!");
                     }
                 } else {
-                    Toast toast = Toast.makeText(getApplicationContext(), "Origem incorreta!", Toast.LENGTH_LONG);
+                    Toast toast = Toast.makeText(getActivity().getApplicationContext(), "Origem incorreta!", Toast.LENGTH_LONG);
                     toast.show();
                     System.out.println("Origem incorreta!");
-                }*/
+                }
             }
         });
     }

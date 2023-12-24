@@ -179,8 +179,8 @@ public class MainFragment extends Fragment {
                                             String info = document.getData().get("info").toString();
                                             String license = document.getData().get("license").toString();
                                             String origin = document.getData().get("origin").toString();
-                                            float originLat = Float.parseFloat(document.getData().get("originLat").toString());
-                                            float originLon = Float.parseFloat(document.getData().get("originLon").toString());
+                                            Double originLat = Double.parseDouble(document.getData().get("originLat").toString());
+                                            Double originLon = Double.parseDouble(document.getData().get("originLon").toString());
                                             String provider = document.getData().get("provider").toString();
                                             int rideCapacity = Integer.parseInt(document.getData().get("rideCapacity").toString());
 
@@ -205,7 +205,6 @@ public class MainFragment extends Fragment {
                                             ride.setState(state);
                                             ride.setTime(time);
                                             ride.setId(id);
-
 
                                             ridesList.add(ride);
 

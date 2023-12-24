@@ -219,7 +219,7 @@ public class MapsFragment extends Fragment {
                 Log.i("emoji", selectedGeoPoint.toString());
                 if(model != null){
                     CompoundLocation cl = new CompoundLocation(currentpoint, selectedGeoPoint.getLatitude(), selectedGeoPoint.getLongitude());
-                    model.selectGeoPoint(selectedGeoPoint);
+                    model.selectCompoundLocation(cl);
                     if(getParentFragmentManager() != null){
                         getParentFragmentManager().popBackStack();
                     }
