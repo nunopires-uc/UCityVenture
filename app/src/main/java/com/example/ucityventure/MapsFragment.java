@@ -69,6 +69,10 @@ public class MapsFragment extends Fragment {
 
     IMapController mapController;
 
+    GeoPoint currentLocalGeoPoint, selectedGeoPoint;
+
+    private SharedViewModel model;
+
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 123;
 
     public MapsFragment() {
@@ -97,10 +101,10 @@ public class MapsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            currentLocalGeoPoint = getArguments().getParcelable("currentLocalGeoPoint");
         }
     }
+
 
 
     @Override
@@ -130,9 +134,11 @@ public class MapsFragment extends Fragment {
         Log.d("End", currentpoint.getAddressLine(0));
 
         subTitle.setText(currentpoint.getAddressLine(0).toString());
+        selectedGeoPoint = new GeoPoint(currentpoint.getLatitude(), currentpoint.getLongitude());
         // Use a geocoding service to get the street name
         // Note: This is a placeholder, replace with your chosen geocoding service
         // String streetName = getStreetName(p);
+
         Log.i("MapsFragment", "Selected location: " + ", " + p.getLatitude() + ", " + p.getLongitude());
 
     }
@@ -219,9 +225,13 @@ public class MapsFragment extends Fragment {
         setPosButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Log.i("emoji", selectedGeoPoint.toString());
+                //model.selectGeoPoint(selectedGeoPoint);
+                // Update other data in the model
+                // Navigate back to CreateRideFragment
             }
         });
+
     }
 
 
@@ -234,6 +244,10 @@ public class MapsFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onDetach() {
+        super.onDetach();
+    }
 
     @Override
     public void onPause() {

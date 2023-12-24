@@ -6,7 +6,9 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -16,9 +18,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +35,8 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.type.LatLng;
+
+import org.osmdroid.util.GeoPoint;
 
 import java.time.LocalDateTime;
 import java.util.Calendar;
@@ -60,8 +66,14 @@ public class CreateRideFragment extends Fragment {
     Button createRideButton;
     Spinner originInput, destinationInput;
 
+    private SharedViewModel model;
+
     //Variaveis
     private int year, month, day, hour, minute;
+
+    GeoPoint currentLocalGeoPoint;
+
+    Location currentLocation;
 
     LatLng originPt;
 
@@ -142,28 +154,59 @@ public class CreateRideFragment extends Fragment {
                     .show();
         }
 
-        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        locationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                // Handle location updates
-                // You can use location.getLatitude() and location.getLongitude() to get the coordinates
-                Toast.makeText(getActivity(), "Latitude: " + location.getLatitude() + ", Longitude: " + location.getLongitude(), Toast.LENGTH_SHORT).show();
-                // Save the location to your originPt variable or do something else with it
-            }
+        LocationManager locationManager = (LocationManager) getActivity().getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-            }
+        Criteria criteria = new Criteria();
+        int currentapiVersion = android.os.Build.VERSION.SDK_INT;
 
-            @Override
-            public void onProviderEnabled(String provider) {
-            }
+        if (currentapiVersion >= android.os.Build.VERSION_CODES.HONEYCOMB) {
 
-            @Override
-            public void onProviderDisabled(String provider) {
+            criteria.setSpeedAccuracy(Criteria.ACCURACY_HIGH);
+            criteria.setAccuracy(Criteria.ACCURACY_FINE);
+            criteria.setAltitudeRequired(true);
+            criteria.setBearingRequired(true);
+            criteria.setSpeedRequired(true);
+
+        }
+
+        String provider = locationManager.getBestProvider(criteria, true);
+        Location currentLocation = null;
+
+        if (provider != null) {
+            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            } else {
+                currentLocation = locationManager.getLastKnownLocation(provider);
             }
-        };
+        }
+
+        if (currentLocation != null) {
+            System.out.println(currentLocation.getLatitude() + " /// " + currentLocation.getLongitude());
+            currentLocalGeoPoint = new GeoPoint(currentLocation.getLatitude(), currentLocation.getLongitude());
+        } else {
+            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            locationManager.requestLocationUpdates(provider, 1000, 0, new LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    if (location != null) {
+                        currentLocalGeoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
+                        System.out.println(location.getLatitude() + " /// " + location.getLongitude());
+                    }
+                }
+                // Implement other methods as necessary
+            });
+        }
+
+        model = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        model.getSelectedGeoPoint().observe(getViewLifecycleOwner(), geoPoint -> {
+            Log.d("CHEGOU!!", geoPoint.toString());
+        });
+
+
+
+        Log.d("localxyz", currentLocation.toString());
 
 
         //spinner
@@ -231,6 +274,16 @@ public class CreateRideFragment extends Fragment {
                 }
             }, year, month,day);
             picker.show();
+        });
+
+        locationInput.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("currentLocalGeoPoint", currentLocalGeoPoint);
+            MapsFragment mapsFragment = new MapsFragment();
+            mapsFragment.setArguments(bundle);
+            ((MainActivity)getActivity()).MudarFragmentoPOP(mapsFragment);
+
+            Log.d("MyLocal$", currentLocalGeoPoint.toString());
         });
     }
 }
