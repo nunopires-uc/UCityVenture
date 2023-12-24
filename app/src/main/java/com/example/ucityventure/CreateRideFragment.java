@@ -383,10 +383,6 @@ public class CreateRideFragment extends Fragment {
                                                         Snackbar.make(view, "Erro ao criar boleia", Snackbar.LENGTH_LONG).show();
                                                     }
                                                 });
-
-
-
-
                                     } else {
                                         Toast toast = Toast.makeText(getActivity().getApplicationContext(), "Capacidade incorreta", Toast.LENGTH_LONG);
                                         toast.show();
