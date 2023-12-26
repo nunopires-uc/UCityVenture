@@ -39,6 +39,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.type.LatLng;
 
@@ -374,6 +375,10 @@ public class CreateRideFragment extends Fragment {
                                                     public void onSuccess(Void aVoid) {
                                                         Log.d("CreateRideFragment", "Boleia criada com sucesso " + randomId);
                                                         Snackbar.make(view, "Boleia criada com sucesso", Snackbar.LENGTH_LONG).show();
+
+                                                        DocumentReference docRef = db.collection("transactions").document("num_rides");
+                                                        // Atomically increments the 'num' field of the document by 1.
+                                                        docRef.update("num", FieldValue.increment(1));
                                                     }
                                                 })
                                                 .addOnFailureListener(new OnFailureListener() {

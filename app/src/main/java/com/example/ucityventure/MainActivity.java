@@ -60,6 +60,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        CarregarFragmento(new ReadQRCodeFragment());
+        CarregarFragmento(new CreateRideFragment());
     }
 }

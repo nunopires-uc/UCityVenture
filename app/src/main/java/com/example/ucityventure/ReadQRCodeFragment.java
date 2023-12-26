@@ -4,6 +4,7 @@ import static android.app.Activity.RESULT_OK;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import android.Manifest;
 
+import com.google.zxing.BarcodeFormat;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.ScanContract;
@@ -75,6 +77,8 @@ public class ReadQRCodeFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (getActivity().checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CAMERA}, PERMISSION_REQUEST_CAMERA);
@@ -87,6 +91,7 @@ public class ReadQRCodeFragment extends Fragment {
     }
 
     private void startQRScanner() {
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         ActivityResultLauncher<Intent> scanQrResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 resultData -> {
@@ -97,13 +102,21 @@ public class ReadQRCodeFragment extends Fragment {
                             Toast.makeText(getContext(), "Scan cancelled", Toast.LENGTH_LONG).show();
                         } else {
                             String qrContents = result.getContents();
-                            // Handle the scanned QR code here
+                            // Handle the scanned QR code here.
+                            Log.d("XYYZE", qrContents);
                             Toast.makeText(getActivity(), "Scanned: " + qrContents, Toast.LENGTH_LONG).show();
                         }
                     }
                 });
 
-        scanQrResultLauncher.launch(new ScanContract().createIntent(getContext(), new ScanOptions()));
+        // Customize the prompt message by setting a custom text
+        ScanOptions scanOptions = new ScanOptions();
+        scanOptions.setOrientationLocked(true);
+        scanOptions.setDesiredBarcodeFormats(String.valueOf(BarcodeFormat.QR_CODE));
+        scanOptions.setPrompt("");
+
+
+        scanQrResultLauncher.launch(new ScanContract().createIntent(getContext(), scanOptions));
     }
 
 
@@ -128,6 +141,21 @@ public class ReadQRCodeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_read_q_r_code, container, false);
+
+        View view = inflater.inflate(R.layout.fragment_read_q_r_code, container, false);
+
+        // Set the layout orientation to portrait mode
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        return view;
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        // Reset the orientation to allow system handling
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+    }
+
 }
