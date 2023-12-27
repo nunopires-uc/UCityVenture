@@ -63,10 +63,25 @@
         >
     </ListView>
 
+
+
+
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_gravity="bottom">
+
+        <ImageButton
+            android:id="@+id/floatingButton"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_gravity="center"
+            android:background="@drawable/rounded_edges_button"
+            android:contentDescription="Floating Button"
+            android:src="@drawable/baseline_qr_code_24" />
 
         <Button
             android:id="@+id/createRideButton"
@@ -117,10 +132,4 @@
 
 
     </RelativeLayout>
-
-
-
-
-
-
 </LinearLayout>
