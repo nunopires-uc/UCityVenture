@@ -263,7 +263,7 @@ public class QRFragment extends Fragment {
         MultiFormatWriter mWriter = new MultiFormatWriter();
         try {
             //BitMatrix class to encode entered text and set Width & Height
-            BitMatrix mMatrix = mWriter.encode("456g74h56h7we4h76weh764we", BarcodeFormat.QR_CODE, 400,400);
+            BitMatrix mMatrix = mWriter.encode(uuid, BarcodeFormat.QR_CODE, 400,400);
             BarcodeEncoder mEncoder = new BarcodeEncoder();
             Bitmap mBitmap = mEncoder.createBitmap(mMatrix);//creating bitmap of code
             imageCode.setImageBitmap(mBitmap);//Setting generated QR code to imageView
