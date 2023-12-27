@@ -11,4 +11,5 @@
     <color name="mainRed">#FF0000</color>
     <color name="mainGreen">#00FF00</color>
     <color name="dark_gray">#4d4d4d</color>
+    <color name="brightGreen">#AAFF00</color>
 </resources>

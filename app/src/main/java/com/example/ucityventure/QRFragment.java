@@ -16,8 +16,10 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,14 +27,22 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
@@ -42,6 +52,7 @@ import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanIntentResult;
 import com.journeyapps.barcodescanner.ScanOptions;
 
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -63,6 +74,12 @@ public class QRFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    ImageView imageViewStatus;
+
+    TextView CorrectHitchhikeText;
+
+    ProgressBar progressBar;
 
     String PIN;
 
@@ -110,21 +127,70 @@ public class QRFragment extends Fragment {
 
                                 //PIN userID readID status
                                 String newQueueElement = PIN + "+" + "hb546ehn7e5j85e78jjn4" + "+" + qrContents + "+" + "0";
-                                documentRef.update("queue", FieldValue.arrayUnion(newQueueElement))
+
+                                ScanConfirmation scelement = new ScanConfirmation();
+                                scelement.setPIN(PIN);
+                                scelement.setUserID("hb546ehn7e5j85e78jjn4");
+                                scelement.setProviderID(qrContents);
+                                scelement.setStatus("0");
+
+                                db.collection("myqrconfirmations")
+                                        .document(scelement.getPIN()) // Use the random ID as the document ID
+                                        .set(scelement)       // Set the data for the document
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
-                                                // Handle success
-                                                Log.d("Firestore", "Element added to the queue successfully");
+                                                progressBar.setVisibility(View.VISIBLE);
+
+                                                //Snackbar.make(getActivity().getCurrentFocus(), "Boleia criada com sucesso", Snackbar.LENGTH_LONG).show();
+                                                db.collection("myqrconfirmations")
+                                                        .document(scelement.getPIN())
+                                                        .set(scelement)
+                                                        .addOnSuccessListener(aVoid1 -> {
+                                                            // Start listening for changes to the document
+                                                            db.collection("myqrconfirmations")
+                                                                    .document(scelement.getPIN())
+                                                                    .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                                                                        @Override
+                                                                        public void onEvent(@Nullable DocumentSnapshot snapshot,
+                                                                                            @Nullable FirebaseFirestoreException e) {
+                                                                            progressBar.setVisibility(View.GONE);
+                                                                            if (e != null) {
+                                                                                Log.w("QRFragment", "Listen failed.", e);
+                                                                                return;
+                                                                            }
+
+                                                                            if (snapshot != null && snapshot.exists()) {
+                                                                                Log.d("QRFragment", "Current data: " + snapshot.getData());
+                                                                                String status = snapshot.get("status").toString();
+                                                                                Log.d("QRFragment", "Status: " + status);
+
+                                                                                //ic_baseline_check_box_24.xml
+
+                                                                                if(status == "-1"){
+                                                                                    CorrectHitchhikeText.setText("A boleia está incorreta!");
+                                                                                    imageViewStatus.setImageResource(R.drawable.baseline_error_24);
+                                                                                }
+
+                                                                                CorrectHitchhikeText.setVisibility(View.VISIBLE);
+                                                                                imageViewStatus.setVisibility(View.VISIBLE);
+                                                                            } else {
+                                                                                Log.d("QRFragment", "Current data: null");
+                                                                            }
+                                                                        }
+                                                                    });
+                                                        })
+                                                        .addOnFailureListener(e -> Snackbar.make(getActivity().getCurrentFocus(), "Erro ao dar ler QR", Snackbar.LENGTH_LONG).show());
                                             }
                                         })
                                         .addOnFailureListener(new OnFailureListener() {
                                             @Override
                                             public void onFailure(@NonNull Exception e) {
-                                                // Handle failure
-                                                Log.e("Firestore", "Error adding element to the queue", e);
+                                                Snackbar.make(getActivity().getCurrentFocus(), "Erro ao dar ler QR", Snackbar.LENGTH_LONG).show();
                                             }
                                         });
+
+
                                 Toast.makeText(getActivity(), "Scanned: " + qrContents, Toast.LENGTH_LONG).show();
                             }
                         }
@@ -187,7 +253,9 @@ public class QRFragment extends Fragment {
 
         ImageView imageCode = view.findViewById(R.id.imageCode);
         createRideButton = view.findViewById(R.id.createRideButton);
-
+        imageViewStatus = view.findViewById(R.id.confirmationStatus);
+        CorrectHitchhikeText = view.findViewById(R.id.CorrectHitchhikeText);
+        progressBar = view.findViewById(R.id.progressBar);
 
         MultiFormatWriter mWriter = new MultiFormatWriter();
         try {
