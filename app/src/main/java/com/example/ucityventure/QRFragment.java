@@ -157,8 +157,6 @@ public class QRFragment extends Fragment {
                                                 Snackbar.make(getActivity().getCurrentFocus(), "Erro ao dar ler QR", Snackbar.LENGTH_LONG).show();
                                             }
                                         });
-
-
                                 Toast.makeText(getActivity(), "Scanned: " + qrContents, Toast.LENGTH_LONG).show();
                             }
                         }

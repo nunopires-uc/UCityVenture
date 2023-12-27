@@ -197,6 +197,9 @@ public class CreateRideFragment extends Fragment {
             } else {
                 currentLocation = locationManager.getLastKnownLocation(provider);
             }
+        }else {
+            Toast toast = Toast.makeText(getActivity().getApplicationContext(), "Ocorreu um erro", Toast.LENGTH_LONG);
+            toast.show();
         }
 
         if (currentLocation != null) {
