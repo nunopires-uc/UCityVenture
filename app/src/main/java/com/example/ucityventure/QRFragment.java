@@ -18,6 +18,8 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import android.os.Handler;
 import android.util.Log;
@@ -84,6 +86,8 @@ public class QRFragment extends Fragment {
 
     ProgressBar progressBar;
 
+    private MutableLiveData<String> pinLiveData = new MutableLiveData<>();
+
     String PIN;
 
     Button createRideButton;
@@ -144,41 +148,7 @@ public class QRFragment extends Fragment {
                                             @Override
                                             public void onSuccess(Void aVoid) {
                                                 progressBar.setVisibility(View.VISIBLE);
-                                                            // Start listening for changes to the document
-                                                            db.collection("myqrconfirmations")
-                                                                    .document(scelement.getPIN())
-                                                                    .addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                                                                        @Override
-                                                                        public void onEvent(@Nullable DocumentSnapshot snapshot,
-                                                                                            @Nullable FirebaseFirestoreException e) {
-                                                                            progressBar.setVisibility(View.GONE);
-                                                                            if (e != null) {
-                                                                                Log.w("QRFragment", "Listen failed.", e);
-                                                                                return;
-                                                                            }
-
-                                                                            if (snapshot != null && snapshot.exists()) {
-                                                                                Log.d("QRFragment", "Current data: " + snapshot.getData());
-                                                                                String status = snapshot.get("status").toString();
-                                                                                Log.d("QRFragment", "Status: " + status);
-
-                                                                                //ic_baseline_check_box_24.xml
-
-                                                                                if(status != "0"){
-                                                                                    if(status == "-1"){
-                                                                                        CorrectHitchhikeText.setText("A boleia está incorreta!");
-                                                                                        imageViewStatus.setImageResource(R.drawable.baseline_error_24);
-                                                                                    }else{
-                                                                                        CorrectHitchhikeText.setVisibility(View.VISIBLE);
-                                                                                        imageViewStatus.setVisibility(View.VISIBLE);
-                                                                                    }
-
-                                                                                }
-                                                                            } else {
-                                                                                Log.d("QRFragment", "Current data: null");
-                                                                            }
-                                                                        }
-                                                                    });
+                                                pinLiveData.setValue(PIN);
                                             }
                                         })
                                         .addOnFailureListener(new OnFailureListener() {
@@ -273,6 +243,45 @@ public class QRFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 startQRScanner();
+            }
+        });
+
+        pinLiveData.observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(@Nullable String pin) {
+                DocumentReference docRef = db.collection("myqrconfirmations").document(pin);
+                docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable DocumentSnapshot snapshot,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            Log.w("QRFragment", "Listen failed.", e);
+                            return;
+                        }
+
+                        if (snapshot != null && snapshot.exists()) {
+                            Log.d("MyPIN", pin.toString());
+                            Log.d("QRFragment", "Current data: " + snapshot.getData());
+
+                            String status = snapshot.get("status").toString();
+
+                            if(status != "0"){
+                                progressBar.setVisibility(View.GONE);
+                                if(status == "-1"){
+                                    CorrectHitchhikeText.setText("A boleia está incorreta!");
+                                    imageViewStatus.setImageResource(R.drawable.baseline_error_24);
+                                }else{
+                                    CorrectHitchhikeText.setVisibility(View.VISIBLE);
+                                    imageViewStatus.setVisibility(View.VISIBLE);
+                                }
+                            }
+
+                            // You can retrieve the fields from the document and update the UI here.
+                        } else {
+                            Log.d("QRFragment", "Current data: null");
+                        }
+                    }
+                });
             }
         });
     }
