@@ -36,6 +36,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -76,6 +77,8 @@ public class QRFragment extends Fragment {
     private String mParam2;
 
     ImageView imageViewStatus;
+
+    String uuid = FirebaseAuth.getInstance().getCurrentUser().getUid().toString();
 
     TextView CorrectHitchhikeText;
 
@@ -130,7 +133,7 @@ public class QRFragment extends Fragment {
 
                                 ScanConfirmation scelement = new ScanConfirmation();
                                 scelement.setPIN(PIN);
-                                scelement.setUserID("hb546ehn7e5j85e78jjn4");
+                                scelement.setUserID(uuid);
                                 scelement.setProviderID(qrContents);
                                 scelement.setStatus("0");
 

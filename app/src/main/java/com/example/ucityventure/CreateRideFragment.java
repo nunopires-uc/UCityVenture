@@ -38,6 +38,7 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -81,6 +82,8 @@ public class CreateRideFragment extends Fragment {
 
     //Variaveis
     private int year, month, day, hour, minute;
+
+    String uuid = FirebaseAuth.getInstance().getCurrentUser().getUid().toString();
 
     GeoPoint currentLocalGeoPoint;
 
@@ -352,7 +355,7 @@ public class CreateRideFragment extends Fragment {
                                         newRide.setInfo(info);
                                         newRide.setTime(String.valueOf(horaSaida));
                                         //Meter uuid!!
-                                        newRide.setProvider("E4J3K2oCDgcCjJSe7Vn2yyV16yo1");
+                                        newRide.setProvider(uuid);
                                         newRide.setRideCapacity(lugares);
                                         newRide.setRidePassangers(new ArrayList<>());
                                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

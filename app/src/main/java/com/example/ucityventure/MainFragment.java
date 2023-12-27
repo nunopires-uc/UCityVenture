@@ -19,7 +19,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -56,9 +58,12 @@ public class MainFragment extends Fragment {
     View v;
 
 
-
     CustomAdapter adapter;
     ArrayList<Ride> ridesList, defaultList;
+
+    Button createRideButton;
+
+    ImageButton ScanQRButton;
 
 
 
@@ -104,6 +109,8 @@ public class MainFragment extends Fragment {
 
         originInput = v.findViewById(R.id.originInput);
         destinationInput = v.findViewById(R.id.destinationInput);
+        createRideButton = v.findViewById(R.id.createRideButton);
+        ScanQRButton = v.findViewById(R.id.ScanQRButton);
 
         ridesList = new ArrayList<>();
 
@@ -156,6 +163,17 @@ public class MainFragment extends Fragment {
 
 
         return v;
+    }
+
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        createRideButton = v.findViewById(R.id.createRideButton);
+        ScanQRButton = v.findViewById(R.id.ScanQRButton);
+
+
+        createRideButton.setOnClickListener(view12 -> ((MainActivity)getActivity()).MudarFragmento(new CreateRideFragment()));
+        ScanQRButton.setOnClickListener(view1 -> ((MainActivity)getActivity()).MudarFragmentoPOP(new QRFragment()));
     }
 
     public void populateListFromDatabase(View v){

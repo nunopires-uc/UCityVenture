@@ -60,6 +60,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        CarregarFragmento(new CreateRideFragment());
+        /*
+        Contas default:
+        joserojas@gmail.com
+        joserojas
+
+         */
+
+        CarregarFragmento(new LoginFragment());
     }
 }

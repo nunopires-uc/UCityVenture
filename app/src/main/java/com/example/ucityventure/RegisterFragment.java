@@ -175,6 +175,7 @@ public class RegisterFragment extends Fragment {
                                                         progressBar.setVisibility(View.GONE);
                                                         Log.d(TAG, "DocumentSnapshot added with ID: " + user.getUid());
                                                         Snackbar.make(view, "User created successfully", Snackbar.LENGTH_LONG).show();
+                                                        ((MainActivity)getActivity()).MudarFragmento(new MainFragment());
                                                     }
                                                 })
                                                 .addOnFailureListener(new OnFailureListener() {
