@@ -144,12 +144,6 @@ public class QRFragment extends Fragment {
                                             @Override
                                             public void onSuccess(Void aVoid) {
                                                 progressBar.setVisibility(View.VISIBLE);
-
-                                                //Snackbar.make(getActivity().getCurrentFocus(), "Boleia criada com sucesso", Snackbar.LENGTH_LONG).show();
-                                                db.collection("myqrconfirmations")
-                                                        .document(scelement.getPIN())
-                                                        .set(scelement)
-                                                        .addOnSuccessListener(aVoid1 -> {
                                                             // Start listening for changes to the document
                                                             db.collection("myqrconfirmations")
                                                                     .document(scelement.getPIN())
@@ -170,20 +164,21 @@ public class QRFragment extends Fragment {
 
                                                                                 //ic_baseline_check_box_24.xml
 
-                                                                                if(status == "-1"){
-                                                                                    CorrectHitchhikeText.setText("A boleia está incorreta!");
-                                                                                    imageViewStatus.setImageResource(R.drawable.baseline_error_24);
-                                                                                }
+                                                                                if(status != "0"){
+                                                                                    if(status == "-1"){
+                                                                                        CorrectHitchhikeText.setText("A boleia está incorreta!");
+                                                                                        imageViewStatus.setImageResource(R.drawable.baseline_error_24);
+                                                                                    }else{
+                                                                                        CorrectHitchhikeText.setVisibility(View.VISIBLE);
+                                                                                        imageViewStatus.setVisibility(View.VISIBLE);
+                                                                                    }
 
-                                                                                CorrectHitchhikeText.setVisibility(View.VISIBLE);
-                                                                                imageViewStatus.setVisibility(View.VISIBLE);
+                                                                                }
                                                                             } else {
                                                                                 Log.d("QRFragment", "Current data: null");
                                                                             }
                                                                         }
                                                                     });
-                                                        })
-                                                        .addOnFailureListener(e -> Snackbar.make(getActivity().getCurrentFocus(), "Erro ao dar ler QR", Snackbar.LENGTH_LONG).show());
                                             }
                                         })
                                         .addOnFailureListener(new OnFailureListener() {

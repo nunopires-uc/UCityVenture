@@ -109,8 +109,6 @@ public class MainFragment extends Fragment {
 
         originInput = v.findViewById(R.id.originInput);
         destinationInput = v.findViewById(R.id.destinationInput);
-        createRideButton = v.findViewById(R.id.createRideButton);
-        ScanQRButton = v.findViewById(R.id.ScanQRButton);
 
         ridesList = new ArrayList<>();
 
@@ -168,12 +166,26 @@ public class MainFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        createRideButton = v.findViewById(R.id.createRideButton);
-        ScanQRButton = v.findViewById(R.id.ScanQRButton);
+        createRideButton = (Button) v.findViewById(R.id.createRideButton);
+        ScanQRButton = (ImageButton)v.findViewById(R.id.ScanQRButton);
 
 
-        createRideButton.setOnClickListener(view12 -> ((MainActivity)getActivity()).MudarFragmento(new CreateRideFragment()));
-        ScanQRButton.setOnClickListener(view1 -> ((MainActivity)getActivity()).MudarFragmentoPOP(new QRFragment()));
+        createRideButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((MainActivity)getActivity()).MudarFragmentoPOP(new CreateRideFragment());
+
+            }
+        });
+
+        ScanQRButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((MainActivity)getActivity()).MudarFragmentoPOP(new QRFragment());
+            }
+        });
+
+
     }
 
     public void populateListFromDatabase(View v){

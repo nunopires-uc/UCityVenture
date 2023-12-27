@@ -123,13 +123,8 @@
             android:layout_toEndOf="@+id/subscribedRidesButton"
             android:background="@drawable/rounded_edges_button"
             android:fontFamily="@font/ubuntu_medium"
-
             android:text="Minhas boleias"
             android:textSize="16dp"
             app:backgroundTint="@color/mainOrange" />
-
-
-
-
     </RelativeLayout>
 </LinearLayout>
