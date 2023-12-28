@@ -263,11 +263,15 @@ public class QRFragment extends Fragment {
 
                             String status = snapshot.get("status").toString();
 
-                            if(status != "0"){
+                            progressBar.setVisibility(View.VISIBLE);
+
+                            if(!status.equals("0")){
                                 progressBar.setVisibility(View.GONE);
-                                if(status == "-1"){
+                                if(status.equals("-1")){
                                     CorrectHitchhikeText.setText("A boleia está incorreta!");
                                     imageViewStatus.setImageResource(R.drawable.baseline_error_24);
+                                    CorrectHitchhikeText.setVisibility(View.VISIBLE);
+                                    imageViewStatus.setVisibility(View.VISIBLE);
                                 }else{
                                     CorrectHitchhikeText.setVisibility(View.VISIBLE);
                                     imageViewStatus.setVisibility(View.VISIBLE);
