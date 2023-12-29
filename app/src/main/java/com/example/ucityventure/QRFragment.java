@@ -277,7 +277,6 @@ public class QRFragment extends Fragment {
                                     imageViewStatus.setVisibility(View.VISIBLE);
                                 }
                             }
-
                             // You can retrieve the fields from the document and update the UI here.
                         } else {
                             Log.d("QRFragment", "Current data: null");
