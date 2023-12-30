@@ -45,9 +45,6 @@ public class CommonClass {
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
             return true;
         } else {
-            // GPS is not enabled, redirect user to settings
-            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            context.startActivity(intent);
             return false;
         }
     }
