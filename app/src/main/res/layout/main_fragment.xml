@@ -63,15 +63,7 @@
         >
     </ListView>
 
-    <ImageButton
-        android:id="@+id/ScanQRButton"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_marginEnd="10dp"
-        android:layout_gravity="center"
-        android:background="@drawable/rounded_edges_button"
-        android:contentDescription="Floating Button"
-        android:src="@drawable/baseline_qr_code_24" />
+
 
 
     <RelativeLayout
@@ -84,22 +76,23 @@
 
         <Button
             android:id="@+id/createRideButton"
-            android:layout_width="120dp"
+            android:layout_width="100dp"
             android:layout_height="65dp"
             android:layout_alignParentStart="true"
             android:layout_gravity="center"
-            android:layout_marginStart="20dp"
+            android:layout_marginStart="10dp"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="10dp"
             android:background="@drawable/rounded_edges_button"
             android:fontFamily="@font/ubuntu_medium"
+            android:padding="5dp"
             android:text="Criar boleia"
             android:textSize="16dp"
             app:backgroundTint="@color/mainOrange" />
 
         <Button
             android:id="@+id/subscribedRidesButton"
-            android:layout_width="120dp"
+            android:layout_width="100dp"
             android:layout_height="65dp"
             android:layout_gravity="center"
             android:layout_marginStart="10dp"
@@ -107,24 +100,38 @@
             android:layout_toEndOf="@+id/createRideButton"
             android:background="@drawable/rounded_edges_button"
             android:fontFamily="@font/ubuntu_medium"
-
+            android:padding="5dp"
             android:text="Boleias inscritas"
             android:textSize="16dp"
             app:backgroundTint="@color/mainOrange" />
 
         <Button
             android:id="@+id/myRidesButton"
-            android:layout_width="120dp"
+            android:layout_width="100dp"
             android:layout_height="65dp"
-            android:layout_alignParentEnd="true"
             android:layout_gravity="center"
             android:layout_marginStart="10dp"
             android:layout_marginTop="5dp"
             android:layout_toEndOf="@+id/subscribedRidesButton"
             android:background="@drawable/rounded_edges_button"
             android:fontFamily="@font/ubuntu_medium"
+            android:padding="5dp"
             android:text="Minhas boleias"
             android:textSize="16dp"
             app:backgroundTint="@color/mainOrange" />
+
+        <ImageButton
+            android:id="@+id/ScanQRButton"
+            android:layout_width="70dp"
+            android:layout_height="65dp"
+            android:layout_alignParentEnd="true"
+            android:layout_gravity="center"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="10dp"
+            android:layout_toEndOf="@+id/myRidesButton"
+            android:background="@drawable/rounded_edges_button"
+            android:contentDescription="Floating Button"
+            android:src="@drawable/baseline_qr_code_24" />
     </RelativeLayout>
 </LinearLayout>
