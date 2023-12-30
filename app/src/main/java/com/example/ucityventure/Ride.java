@@ -1,8 +1,13 @@
 package com.example.ucityventure;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 
-public class Ride {
+public class Ride implements Parcelable{
     private String destination;
     private String info;
     private String license;
@@ -145,5 +150,15 @@ public class Ride {
         sb.append(", time='").append(time).append('\'');
         sb.append('}');
         return sb.toString();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel parcel, int i) {
+
     }
 }

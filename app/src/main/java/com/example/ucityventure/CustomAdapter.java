@@ -1,10 +1,13 @@
 package com.example.ucityventure;
 
+import static android.app.PendingIntent.getActivity;
 import static android.content.ContentValues.TAG;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -64,6 +67,17 @@ public class CustomAdapter extends ArrayAdapter<Ride> {
         rideName.setText(ride.getDestination());
         rideDesc.setText("Desde " + ride.getOrigin());
         rideCount.setText(ride.getRidePassangers().size() + "/" + ride.getRideCapacity());
+
+        //Mostrar perfil da boleia
+
+
+        convertView.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("selectedRide", (Parcelable) ride);
+            RideProfileFragment rideProfileFragment = new RideProfileFragment();
+            rideProfileFragment.setArguments(bundle);
+            ((MainActivity)getContext()).MudarFragmentoPOP(rideProfileFragment);
+        });
 
 
         //Parte visual
