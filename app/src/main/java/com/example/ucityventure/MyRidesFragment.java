@@ -2,9 +2,6 @@ package com.example.ucityventure;
 
 import static android.content.ContentValues.TAG;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,20 +10,14 @@ import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ListView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -35,18 +26,25 @@ import com.google.firebase.firestore.MetadataChanges;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import org.checkerframework.checker.units.qual.A;
-
 import java.util.ArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link MainFragment#newInstance} factory method to
+ * Use the {@link MyRidesFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MainFragment extends Fragment {
+public class MyRidesFragment extends Fragment {
+
+    // TODO: Rename parameter arguments, choose names that match
+    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    private static final String ARG_PARAM1 = "param1";
+    private static final String ARG_PARAM2 = "param2";
+
+    // TODO: Rename and change types of parameters
+    private String mParam1;
+    private String mParam2;
 
     Executor executor = Executors.newSingleThreadExecutor();
     Handler mainHandler = new Handler(Looper.getMainLooper());
@@ -55,23 +53,14 @@ public class MainFragment extends Fragment {
 
     //isto é o id do user que ta logado
     String uuid = FirebaseAuth.getInstance().getCurrentUser().getUid().toString();
-    View v;
 
 
-    CustomAdapter adapter;
+    CustomAdapter2 adapter;
     ArrayList<Ride> ridesList, defaultList;
 
-    Button createRideButton, myRidesButton;
+    View v;
 
-    ImageButton ScanQRButton;
-
-
-
-    EditText originInput, destinationInput;
-
-
-
-    public MainFragment() {
+    public MyRidesFragment() {
         // Required empty public constructor
     }
 
@@ -81,12 +70,14 @@ public class MainFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment MainFragment.
+     * @return A new instance of fragment MyRidesFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static MainFragment newInstance(String param1, String param2) {
-        MainFragment fragment = new MainFragment();
+    public static MyRidesFragment newInstance(String param1, String param2) {
+        MyRidesFragment fragment = new MyRidesFragment();
         Bundle args = new Bundle();
+        args.putString(ARG_PARAM1, param1);
+        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -94,25 +85,25 @@ public class MainFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            mParam1 = getArguments().getString(ARG_PARAM1);
+            mParam2 = getArguments().getString(ARG_PARAM2);
+        }
+
+
 
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
 
-
-
-
-
-        v = inflater.inflate(R.layout.main_fragment, container, false);
-
-        originInput = v.findViewById(R.id.originInput);
-        destinationInput = v.findViewById(R.id.destinationInput);
+        v = inflater.inflate(R.layout.my_rides_fragment, container, false);
 
         ridesList = new ArrayList<>();
 
-        adapter = new CustomAdapter(requireActivity(), ridesList);
+        adapter = new CustomAdapter2(requireActivity(), ridesList);
 
         if(getActivity() != null){
 
@@ -124,72 +115,7 @@ public class MainFragment extends Fragment {
             listenForChanges(v);
         }
 
-        originInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                filterListByText(originInput.getText().toString(), destinationInput.getText().toString());
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
-
-        destinationInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                filterListByText(originInput.getText().toString(), destinationInput.getText().toString());
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
-
-
         return v;
-    }
-
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        createRideButton = (Button) v.findViewById(R.id.createRideButton);
-        ScanQRButton = (ImageButton)v.findViewById(R.id.ScanQRButton);
-        myRidesButton = v.findViewById(R.id.myRidesButton);
-
-
-        createRideButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((MainActivity)getActivity()).MudarFragmentoPOP(new CreateRideFragment());
-
-            }
-        });
-
-        ScanQRButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((MainActivity)getActivity()).MudarFragmentoPOP(new QRFragment());
-            }
-        });
-
-        myRidesButton.setOnClickListener(v -> {
-            ((MainActivity)getActivity()).MudarFragmentoPOP(new MyRidesFragment());
-        });
-
     }
 
     public void populateListFromDatabase(View v){
@@ -240,10 +166,15 @@ public class MainFragment extends Fragment {
                                             ride.setTime(time);
                                             ride.setId(id);
 
-                                            ridesList.add(ride);
+
+                                            if(ride.getProvider().equals(uuid)){
+                                                ridesList.add(ride);
+                                            }
 
 
-                                            adapter = new CustomAdapter(requireActivity(), ridesList);
+
+
+                                            adapter = new CustomAdapter2(requireActivity(), ridesList);
                                             //defaultList = new ArrayList<>(cardItems);
                                             // Find the ListView and set the adapter
                                             ListView listView = v.findViewById(R.id.ListViewRides);
@@ -283,18 +214,5 @@ public class MainFragment extends Fragment {
                         }
                     });
         });
-    }
-
-    public boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null;
-    }
-
-    public void filterListByText(String originQuery, String destinationQuery){
-        if(adapter != null){
-
-            adapter.filter(originQuery, destinationQuery);
-        }
     }
 }
