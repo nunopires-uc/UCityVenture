@@ -119,6 +119,24 @@ public class LoginFragment extends Fragment {
                     .show();
         }
 
+        if(!CommonClass.isGPSAvailable(getContext())){
+            new AlertDialog.Builder(getActivity())
+                    .setTitle("O GPS não está ativo, deseja ligar o GPS?")
+                    .setPositiveButton("Ligar", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            // GPS is not enabled, redirect user to settings
+                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                            startActivity(intent);
+                        }
+                    })
+                    .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            getActivity().finishAndRemoveTask();
+                        }
+                    })
+                    .show();
+        }
+
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

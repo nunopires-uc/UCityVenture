@@ -415,6 +415,16 @@ public class CreateRideFragment extends Fragment {
                 ((MainActivity)getActivity()).MudarFragmentoPOP(mapsFragment);
             } else {
                 Log.d("MyLocal$", "Cannot navigate to MapsFragment because current local geo point is null");
+                find_Location(getContext());
+                currentLocalGeoPoint = new GeoPoint(currentLocation.getLatitude(), currentLocation.getLongitude());
+                if(currentLocation != null){
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelable("currentLocalGeoPoint", currentLocalGeoPoint);
+                    MapsFragment mapsFragment = new MapsFragment();
+                    mapsFragment.setArguments(bundle);
+                    ((MainActivity)getActivity()).MudarFragmentoPOP(mapsFragment);
+                }
+
             }
         });
 
