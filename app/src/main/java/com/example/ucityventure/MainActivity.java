@@ -41,6 +41,15 @@ public class MainActivity extends AppCompatActivity {
         invalidateOptionsMenu();
     }
 
+    public void PopCurrentFragment() {
+        FragmentManager fm = getSupportFragmentManager();
+        if (fm.getBackStackEntryCount() > 0) {
+            fm.popBackStack();
+            invalidateOptionsMenu();
+        }
+    }
+
+
     //Para ser possível voltar atrás
     public void MudarFragmentoPOP(Fragment fragment_name){
         FragmentManager fm = getSupportFragmentManager();

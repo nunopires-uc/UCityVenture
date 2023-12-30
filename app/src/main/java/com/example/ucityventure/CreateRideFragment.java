@@ -486,6 +486,8 @@ public class CreateRideFragment extends Fragment {
                                                         DocumentReference docRef = db.collection("transactions").document("num_rides");
                                                         // Atomically increments the 'num' field of the document by 1.
                                                         docRef.update("num", FieldValue.increment(1));
+
+                                                        ((MainActivity)getActivity()).PopCurrentFragment();
                                                     }
                                                 })
                                                 .addOnFailureListener(new OnFailureListener() {
