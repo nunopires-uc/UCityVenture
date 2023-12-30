@@ -1,9 +1,12 @@
 package com.example.ucityventure;
 import android.content.Context;
+import android.content.Intent;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.os.Build;
+import android.provider.Settings;
 
 public class CommonClass {
 
@@ -32,6 +35,19 @@ public class CommonClass {
                     }
                 }
             }
+            return false;
+        }
+    }
+
+    public static boolean isGPSAvailable(Context context){
+        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+            return true;
+        } else {
+            // GPS is not enabled, redirect user to settings
+            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            context.startActivity(intent);
             return false;
         }
     }

@@ -1,5 +1,7 @@
 package com.example.ucityventure;
 
+import static com.example.ucityventure.CommonClass.isGPSAvailable;
+
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -7,11 +9,13 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationRequest;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -21,6 +25,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -35,8 +40,18 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.Priority;
+import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -91,6 +106,11 @@ public class CreateRideFragment extends Fragment {
 
     Location currentLocation;
 
+    private FusedLocationProviderClient fusedLocationClient;
+
+
+    private LocationCallback locationCallback;
+
     LatLng originPt;
 
     Double Latitude, Longitude;
@@ -98,6 +118,67 @@ public class CreateRideFragment extends Fragment {
     public CreateRideFragment() {
         // Required empty public constructor
     }
+
+    private Location getLastKnownLocation() {
+        List<String> providers = locationManager.getProviders(true);
+        Location bestLocation = null;
+        for (String provider : providers) {
+            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return null;
+            }
+            Location l = locationManager.getLastKnownLocation(provider);
+            if (l == null) {
+                continue;
+            }
+            if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
+                bestLocation = l;
+            }
+        }
+        return bestLocation;
+    }
+
+    public void find_Location(Context con) {
+        locationManager = (LocationManager) con.getSystemService(Context.LOCATION_SERVICE);
+        List<String> providers = locationManager.getProviders(true);
+        for (String provider : providers) {
+            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            locationManager.requestLocationUpdates(provider, 1000, 0, new LocationListener() {
+                public void onLocationChanged(Location location) {
+                }
+
+                public void onProviderDisabled(String provider) {
+                }
+
+                public void onProviderEnabled(String provider) {
+                }
+
+                public void onStatusChanged(String provider, int status, Bundle extras) {
+                }
+            });
+            Location location = locationManager.getLastKnownLocation(provider);
+            if (location != null) {
+                currentLocation.setLatitude(location.getLatitude());
+                currentLocation.setLongitude(location.getLongitude());
+            }
+        }
+    }
+
 
     /**
      * Use this factory method to create a new instance of
@@ -124,6 +205,8 @@ public class CreateRideFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        locationManager = (LocationManager) getActivity().getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+        currentLocation = getLastKnownLocation();
     }
 
     @Override
@@ -144,7 +227,9 @@ public class CreateRideFragment extends Fragment {
         licenseInput = view.findViewById(R.id.licenseInput);
         capacityInput = view.findViewById(R.id.capacityInput);
         infoInput = view.findViewById(R.id.infoInput);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
         db = FirebaseFirestore.getInstance();
+        find_Location(getContext());
 
         //perms
         if (ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -173,61 +258,60 @@ public class CreateRideFragment extends Fragment {
                     .show();
         }
 
-        LocationManager locationManager = (LocationManager) getActivity().getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+        if(isGPSAvailable(getContext())){
+            LocationManager locationManager = (LocationManager) getActivity().getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
-        Criteria criteria = new Criteria();
-        int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+            Criteria criteria = new Criteria();
+            int currentapiVersion = android.os.Build.VERSION.SDK_INT;
 
-        if (currentapiVersion >= android.os.Build.VERSION_CODES.HONEYCOMB) {
+            if (currentapiVersion >= android.os.Build.VERSION_CODES.HONEYCOMB) {
 
-            criteria.setSpeedAccuracy(Criteria.ACCURACY_HIGH);
-            criteria.setAccuracy(Criteria.ACCURACY_FINE);
-            criteria.setAltitudeRequired(true);
-            criteria.setBearingRequired(true);
-            criteria.setSpeedRequired(true);
+                criteria.setSpeedAccuracy(Criteria.ACCURACY_HIGH);
+                criteria.setAccuracy(Criteria.ACCURACY_FINE);
+                criteria.setAltitudeRequired(true);
+                criteria.setBearingRequired(true);
+                criteria.setSpeedRequired(true);
 
-        }
-
-        String provider = locationManager.getBestProvider(criteria, true);
-        Location currentLocation = null;
-
-        if (provider != null) {
-            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            } else {
-                currentLocation = locationManager.getLastKnownLocation(provider);
             }
-        }else {
-            Toast toast = Toast.makeText(getActivity().getApplicationContext(), "Ocorreu um erro", Toast.LENGTH_LONG);
-            toast.show();
-        }
 
-        if (currentLocation != null) {
-            System.out.println(currentLocation.getLatitude() + " /// " + currentLocation.getLongitude());
-            currentLocalGeoPoint = new GeoPoint(currentLocation.getLatitude(), currentLocation.getLongitude());
-        } else {
-            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-            locationManager.requestLocationUpdates(provider, 1000, 0, new LocationListener() {
-                @Override
-                public void onLocationChanged(Location location) {
-                    if (location != null) {
-                        currentLocalGeoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
-                        System.out.println(location.getLatitude() + " /// " + location.getLongitude());
+            String provider = locationManager.getBestProvider(criteria, true);
+            Location currentLocation = null;
 
-                    }
+            if (provider != null) {
+                if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                } else {
+                    currentLocation = locationManager.getLastKnownLocation(provider);
                 }
-                // Implement other methods as necessary
-            });
+            }else {
+                Toast toast = Toast.makeText(getActivity().getApplicationContext(), "Ocorreu um erro", Toast.LENGTH_LONG);
+                toast.show();
+                return;
+            }
+
+            if (currentLocation != null) {
+                System.out.println(currentLocation.getLatitude() + " /// " + currentLocation.getLongitude());
+                currentLocalGeoPoint = new GeoPoint(currentLocation.getLatitude(), currentLocation.getLongitude());
+            } else {
+                if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+                locationManager.requestLocationUpdates(provider, 1000, 0, new LocationListener() {
+                    @Override
+                    public void onLocationChanged(Location location) {
+                        if (location != null) {
+                            currentLocalGeoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
+                            System.out.println(location.getLatitude() + " /// " + location.getLongitude());
+
+                        }
+                    }
+                    // Implement other methods as necessary
+                });
+            }
         }
+
 
         model = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
-        /*model.getSelectedGeoPoint().observe(getViewLifecycleOwner(), geoPoint -> {
-            Log.d("CHEGOU!!", geoPoint.toString());
-            locationInput.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_gps_fixed_24_blue, 0, 0, 0);
-            locationInput.setText("Localização - Guardada");
-        });*/
 
         model.getSelectedCompoundLocation().observe(getViewLifecycleOwner(), cl -> {
             locationInput.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_gps_fixed_24_blue, 0, 0, 0);
@@ -238,7 +322,12 @@ public class CreateRideFragment extends Fragment {
 
 
 
-        Log.d("localxyz", currentLocation.toString());
+        if (currentLocation != null) {
+            Log.d("localxyz", currentLocation.toString());
+        } else {
+            Log.d("localxyz", "Current location is null");
+        }
+
 
 
         //spinner
@@ -318,13 +407,15 @@ public class CreateRideFragment extends Fragment {
         });
 
         locationInput.setOnClickListener(v -> {
-            Bundle bundle = new Bundle();
-            bundle.putParcelable("currentLocalGeoPoint", currentLocalGeoPoint);
-            MapsFragment mapsFragment = new MapsFragment();
-            mapsFragment.setArguments(bundle);
-            ((MainActivity)getActivity()).MudarFragmentoPOP(mapsFragment);
-
-            Log.d("MyLocal$", currentLocalGeoPoint.toString());
+            if (currentLocalGeoPoint != null) {
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("currentLocalGeoPoint", currentLocalGeoPoint);
+                MapsFragment mapsFragment = new MapsFragment();
+                mapsFragment.setArguments(bundle);
+                ((MainActivity)getActivity()).MudarFragmentoPOP(mapsFragment);
+            } else {
+                Log.d("MyLocal$", "Cannot navigate to MapsFragment because current local geo point is null");
+            }
         });
 
         createRideButton.setOnClickListener(new View.OnClickListener() {
