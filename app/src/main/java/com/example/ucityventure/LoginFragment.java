@@ -40,6 +40,8 @@ public class LoginFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
+    //Variáveis de elementos de UI
+
     EditText emailInput, passwordInput;
     Button loginButton;
 
@@ -100,9 +102,11 @@ public class LoginFragment extends Fragment {
 
         mAuth = FirebaseAuth.getInstance();
 
+        //Utilizador default para não estar sempre a inserir email e password (para testes)
         emailInput.setText("dj8@uc.pt");
         passwordInput.setText("123456");
 
+        //Verificar se existe internet disponivel
         if(!CommonClass.isNetworkAvailable(getContext())){
             new AlertDialog.Builder(getActivity())
                     .setTitle("Não existe conexão à internet, deseja ligar o Wifi?")
@@ -120,6 +124,7 @@ public class LoginFragment extends Fragment {
                     .show();
         }
 
+        //Verificar se o gps está ligado
         if(!CommonClass.isGPSAvailable(getContext())){
             new AlertDialog.Builder(getActivity())
                     .setTitle("O GPS não está ativo, deseja ligar o GPS?")
@@ -142,6 +147,7 @@ public class LoginFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 progressBar.setVisibility(View.VISIBLE);
+                //efetuar login
                 mAuth.signInWithEmailAndPassword(emailInput.getText().toString(), passwordInput.getText().toString())
                         .addOnCompleteListener(requireActivity(), new OnCompleteListener<AuthResult>() {
                             @Override
@@ -159,7 +165,7 @@ public class LoginFragment extends Fragment {
             }
         });
 
-        //Handler do texto para registar
+        //Mudar para o fragmento de registo
         registerText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

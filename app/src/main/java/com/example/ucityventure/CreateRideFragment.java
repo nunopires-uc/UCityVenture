@@ -404,12 +404,13 @@ public class CreateRideFragment extends Fragment {
         locationInput.setOnClickListener(v -> {
             if (currentLocalGeoPoint != null) {
                 Bundle bundle = new Bundle();
-                //"Enviar" para
+                //"Enviar" o geopoint da localização do utilizador para o MapsFragment
                 bundle.putParcelable("currentLocalGeoPoint", currentLocalGeoPoint);
                 MapsFragment mapsFragment = new MapsFragment();
                 mapsFragment.setArguments(bundle);
                 ((MainActivity)getActivity()).MudarFragmentoPOP(mapsFragment);
             } else {
+                //Caso o geopoint seja nulo, tentar encontrar outra vez a localização do utilizador e mudar para o MapsFragment
                 Log.d("MyLocal$", "Cannot navigate to MapsFragment because current local geo point is null");
                 find_Location(getContext());
                 currentLocalGeoPoint = new GeoPoint(currentLocation.getLatitude(), currentLocation.getLongitude());
@@ -420,10 +421,10 @@ public class CreateRideFragment extends Fragment {
                     mapsFragment.setArguments(bundle);
                     ((MainActivity)getActivity()).MudarFragmentoPOP(mapsFragment);
                 }
-
             }
         });
 
+        //Criar a boleia
         createRideButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -433,6 +434,7 @@ public class CreateRideFragment extends Fragment {
                 String info = infoInput.getText().toString();
 
 
+                //Verificar se os dados de input estão preparados para ser armazenados
                 if(!origem.equals("") && !origem.equals("Origem") && !origem.equals(destino)){
                     if(!destino.equals("") && !destino.equals("Destino") && !destino.equals(origem)){
                         if(!matricula.equals("") && matricula.length() == 8){
@@ -445,16 +447,17 @@ public class CreateRideFragment extends Fragment {
                                     horaSaida = LocalDateTime.parse(timeInput.getText().toString(), formatter);
                                 }
 
+                                //Verificar se uma localização foi guardada
                                 if(!locationInput.getText().toString().equals("")){
+                                    //Verificar se foi introduzido o número de lugares vagos no carro
                                     if(!capacityInput.getText().toString().equals("")){
                                         int lugares = Integer.parseInt(capacityInput.getText().toString());
-                                        //nova ride
+                                        //Criar a nova boleia
                                         Ride newRide = new Ride();
                                         newRide.setOrigin(origem);
                                         newRide.setDestination(destino);
                                         newRide.setInfo(info);
                                         newRide.setTime(String.valueOf(horaSaida));
-                                        //Meter uuid!!
                                         newRide.setProvider(uuid);
                                         newRide.setRideCapacity(lugares);
                                         newRide.setRidePassangers(new ArrayList<>());
@@ -470,19 +473,21 @@ public class CreateRideFragment extends Fragment {
                                         String randomId = db.collection("rides").document().getId();
                                         newRide.setId(randomId);
 
+                                        //armazena a boleia na coleção rides do firestore
                                         db.collection("rides")
-                                                .document(randomId) // Use the random ID as the document ID
-                                                .set(newRide)       // Set the data for the document
+                                                .document(randomId)
+                                                .set(newRide)
                                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                     @Override
                                                     public void onSuccess(Void aVoid) {
+                                                        //Mensagem de sucesso de criação de boleia
                                                         Log.d("CreateRideFragment", "Boleia criada com sucesso " + randomId);
                                                         Snackbar.make(view, "Boleia criada com sucesso", Snackbar.LENGTH_LONG).show();
 
                                                         DocumentReference docRef = db.collection("transactions").document("num_rides");
-                                                        // Atomically increments the 'num' field of the document by 1.
+                                                        // Aumenta atomicamente o campo 'num' do documento em 1.
                                                         docRef.update("num", FieldValue.increment(1));
-
+                                                        // Sair do fragmento atual
                                                         ((MainActivity)getActivity()).PopCurrentFragment();
                                                     }
                                                 })

@@ -53,10 +53,7 @@ public class MainFragment extends Fragment {
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    //isto é o id do user que ta logado
-    String uuid = FirebaseAuth.getInstance().getCurrentUser().getUid().toString();
     View v;
-
 
     CustomAdapter adapter;
     ArrayList<Ride> ridesList, defaultList;
@@ -64,8 +61,6 @@ public class MainFragment extends Fragment {
     Button createRideButton, myRidesButton, subscribedRidesButton;
 
     ImageButton ScanQRButton;
-
-
 
     EditText originInput, destinationInput;
 
@@ -100,10 +95,6 @@ public class MainFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-
-
-
 
         v = inflater.inflate(R.layout.main_fragment, container, false);
 
