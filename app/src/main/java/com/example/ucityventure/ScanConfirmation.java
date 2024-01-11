@@ -2,6 +2,8 @@ package com.example.ucityventure;
 
 public class ScanConfirmation {
 
+    //Classe que gera as confirmações dos QR Codes
+
     String PIN, ProviderID, UserID, Status;
 
     public String getPIN() {
