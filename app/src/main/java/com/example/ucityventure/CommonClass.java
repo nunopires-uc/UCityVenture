@@ -10,6 +10,10 @@ import android.provider.Settings;
 
 public class CommonClass {
 
+
+    //Classe de funções estáticas que são utilizadas ao longo do projecto
+
+    //Função que avalia se existe conexão à internet
     public static boolean isNetworkAvailable(Context context) {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -22,6 +26,7 @@ public class CommonClass {
                     actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) ||
                     actNw.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH));
         } else {
+            //Verifica se os tipos de conexão não são nulos, existindo conexão à internet
             if (connectivityManager != null) {
                 Network[] networks = connectivityManager.getAllNetworks();
                 for (Network network : networks) {
@@ -39,6 +44,7 @@ public class CommonClass {
         }
     }
 
+    //Função para verificar se existe GPS disponível
     public static boolean isGPSAvailable(Context context){
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 

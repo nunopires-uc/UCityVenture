@@ -4,6 +4,8 @@ import android.location.Address;
 
 public class CompoundLocation {
 
+    //Classe que guarda o endereço de um local, a sua latitude, e longitude
+
     Address locationAddress;
     Double Latitude, Longitude;
 
