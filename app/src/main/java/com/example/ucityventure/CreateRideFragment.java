@@ -85,40 +85,42 @@ public class CreateRideFragment extends Fragment {
     private String mParam2;
 
     private LocationManager locationManager;
-    private LocationListener locationListener;
-    private static final int LOCATION_REQUEST_CODE = 1;
 
-
+    //Componentes referentes à interface de utilizador
     EditText timeInput, locationInput, licenseInput, capacityInput, infoInput;
     Button createRideButton;
     Spinner originInput, destinationInput;
 
+    //declaração de um sharedviewmodel, que manipula CompoundLocation e GeoPoints
     private SharedViewModel model;
 
-    //Variaveis
+    //Variaveis que serão usadas no calendário
     private int year, month, day, hour, minute;
 
+    //id do utilizador logado
     String uuid = FirebaseAuth.getInstance().getCurrentUser().getUid().toString();
 
+    //armazena a primeira localização do utilizador, e de seguida a que escolheu no mapa
     GeoPoint currentLocalGeoPoint;
 
+    //Declaração da variável para manipular a firestore
     FirebaseFirestore db;
 
+    //Variável de localização atual
     Location currentLocation;
 
     private FusedLocationProviderClient fusedLocationClient;
 
 
-    private LocationCallback locationCallback;
-
-    LatLng originPt;
-
+    //Variáveis para guardar latitude e longitude
     Double Latitude, Longitude;
 
     public CreateRideFragment() {
         // Required empty public constructor
     }
 
+
+    //Função para resolver a última localização do utilizador
     private Location getLastKnownLocation() {
         List<String> providers = locationManager.getProviders(true);
         Location bestLocation = null;
@@ -144,6 +146,7 @@ public class CreateRideFragment extends Fragment {
         return bestLocation;
     }
 
+    //Encontrar a localização do utilizador
     public void find_Location(Context con) {
         locationManager = (LocationManager) con.getSystemService(Context.LOCATION_SERVICE);
         List<String> providers = locationManager.getProviders(true);
@@ -180,15 +183,6 @@ public class CreateRideFragment extends Fragment {
     }
 
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment CreateRideFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static CreateRideFragment newInstance(String param1, String param2) {
         CreateRideFragment fragment = new CreateRideFragment();
         Bundle args = new Bundle();
@@ -205,6 +199,7 @@ public class CreateRideFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        //Reter a localização do utilizador
         locationManager = (LocationManager) getActivity().getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         currentLocation = getLastKnownLocation();
     }
@@ -229,9 +224,11 @@ public class CreateRideFragment extends Fragment {
         infoInput = view.findViewById(R.id.infoInput);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
         db = FirebaseFirestore.getInstance();
+
+        //Encontrar a localização, do utilizador, são feitos vários pedidos de localização para não falhar quando se mostra a verdadeira localização do utilizador.
         find_Location(getContext());
 
-        //perms
+        //Verificar se foram dadaas permissões para aceder à localização
         if (ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             new AlertDialog.Builder(getActivity())
                     .setTitle("Permissões em falta!")
@@ -258,20 +255,20 @@ public class CreateRideFragment extends Fragment {
                     .show();
         }
 
+        //Verificar se o gps está disponivel
         if(isGPSAvailable(getContext())){
+            //Este passo server para tentar resolver mais uma vez a localização do utilizador, e colocá-la num geopoint que vai ser visualizado no mapa
             LocationManager locationManager = (LocationManager) getActivity().getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
             Criteria criteria = new Criteria();
             int currentapiVersion = android.os.Build.VERSION.SDK_INT;
 
             if (currentapiVersion >= android.os.Build.VERSION_CODES.HONEYCOMB) {
-
                 criteria.setSpeedAccuracy(Criteria.ACCURACY_HIGH);
                 criteria.setAccuracy(Criteria.ACCURACY_FINE);
                 criteria.setAltitudeRequired(true);
                 criteria.setBearingRequired(true);
                 criteria.setSpeedRequired(true);
-
             }
 
             String provider = locationManager.getBestProvider(criteria, true);
@@ -290,6 +287,7 @@ public class CreateRideFragment extends Fragment {
             }
 
             if (currentLocation != null) {
+                //Se a localização atual não for nula então colocar no geopoint a latitude e longitude do utilizador.
                 System.out.println(currentLocation.getLatitude() + " /// " + currentLocation.getLongitude());
                 currentLocalGeoPoint = new GeoPoint(currentLocation.getLatitude(), currentLocation.getLongitude());
             } else {
@@ -302,19 +300,21 @@ public class CreateRideFragment extends Fragment {
                         if (location != null) {
                             currentLocalGeoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
                             System.out.println(location.getLatitude() + " /// " + location.getLongitude());
-
                         }
                     }
-                    // Implement other methods as necessary
                 });
             }
         }
 
 
+        // instanciar o viewmodel
         model = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
 
+        // ficar à escuta se foi colocada alguma CompoundLocation no viewmodel (isto acontece dentro do MapsFragment)
         model.getSelectedCompoundLocation().observe(getViewLifecycleOwner(), cl -> {
+            //Mudar a cor do ícone da localização
             locationInput.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_gps_fixed_24_blue, 0, 0, 0);
+            //Colocar no editText a morada da localização escolhida
             locationInput.setText(cl.getLocationAddress().getAddressLine(0).toString());
             Latitude = cl.getLatitude();
             Longitude = cl.getLongitude();
@@ -322,15 +322,7 @@ public class CreateRideFragment extends Fragment {
 
 
 
-        if (currentLocation != null) {
-            Log.d("localxyz", currentLocation.toString());
-        } else {
-            Log.d("localxyz", "Current location is null");
-        }
-
-
-
-        //spinner
+        //spinner com localidades de origem e destino
         String[] localidades = {"Origem", "Águeda", "Aguiar da Beira", "Alandroal", "Albergaria-a-Velha", "Albufeira", "Alcácer do Sal", "Alcanena", "Alcobaça", "Alcochete", "Alcoutim", "Alenquer", "Alfândega da Fé", "Alijó", "Aljezur", "Aljustrel", "Almada", "Almeida", "Almeirim", "Almodôvar", "Alpiarça", "Alter do Chão", "Alvaiázere", "Alvito", "Amadora", "Amarante", "Amares", "Anadia", "Angra do Heroísmo", "Ansião", "Arcos de Valdevez", "Arganil", "Armamar", "Arouca", "Arraiolos", "Arronches", "Arruda dos Vinhos", "Aveiro", "Avis", "Azambuja", "Baião", "Barcelos", "Barrancos", "Barreiro", "Batalha", "Beja", "Belmonte", "Benavente", "Bombarral", "Borba", "Boticas", "Braga", "Bragança", "Cabeceiras de Basto", "Cadaval", "Caldas da Rainha", "Calheta (Madeira)", "Calheta (São Jorge)", "Caminha", "Campo Maior", "Cantanhede", "Carrazeda de Ansiães", "Carregal do Sal", "Cartaxo", "Cascais", "Castanheira de Pêra", "Castelo Branco", "Castelo de Paiva", "Castelo de Vide", "Castro Daire", "Castro Marim", "Castro Verde", "Celorico da Beira", "Celorico de Basto", "Chamusca", "Chaves", "Cinfães", "Coimbra", "Condeixa-a-Nova", "Constância", "Coruche", "Corvo", "Covilhã", "Crato", "Cuba", "Câmara de Lobos", "Elvas", "Entroncamento", "Espinho", "Esposende", "Estarreja", "Estremoz", "Évora", "Fafe", "Faro", "Felgueiras", "Ferreira do Alentejo", "Ferreira do Zêzere", "Figueira da Foz", "Figueira de Castelo Rodrigo", "Figueiró dos Vinhos", "Fornos de Algodres", "Freixo de Espada à Cinta", "Fronteira", "Funchal", "Fundão", "Gavião", "Golegã", "Gondomar", "Gouveia", "Grândola", "Guarda", "Guimarães", "Góis", "Horta", "Idanha-a-Nova", "Ílhavo", "Lagoa (Algarve)", "Lagoa (São Miguel)", "Lagos", "Lajes das Flores", "Lajes do Pico", "Lamego", "Leiria", "Lisboa", "Loulé", "Loures", "Lourinhã", "Lousã", "Lousada", "Mação", "Macedo de Cavaleiros", "Machico", "Madalena", "Mafra", "Maia", "Mangualde", "Manteigas", "Marco de Canaveses", "Marinha Grande", "Marvão", "Matosinhos", "Mealhada", "Meda", "Melgaço", "Mesão Frio", "Mira", "Miranda do Corvo", "Miranda do Douro", "Mirandela", "Mogadouro", "Moimenta da Beira", "Moita", "Monção", "Monchique", "Mondim de Basto", "Monforte", "Montalegre", "Montemor-o-Novo", "Montemor-o-Velho", "Montijo", "Mora", "Mortágua", "Moura", "Mourão", "Murça", "Murtosa", "Mértola", "Nazaré", "Nelas", "Nisa", "Nordeste", "Óbidos", "Odemira", "Odivelas", "Oeiras", "Oleiros", "Olhão", "Oliveira de Azeméis", "Oliveira de Frades", "Oliveira do Bairro", "Oliveira do Hospital", "Ourique", "Ourém", "Ovar", "Paços de Ferreira", "Palmela", "Pampilhosa da Serra", "Paredes", "Paredes de Coura", "Pedrógão Grande", "Penacova", "Penafiel", "Penalva do Castelo", "Penamacor", "Penedono", "Penela", "Peniche", "Peso da Régua", "Pinhel", "Pombal", "Ponta Delgada", "Ponta do Sol", "Ponte da Barca", "Ponte de Lima", "Ponte de Sor", "Portalegre", "Portel", "Portimão", "Porto", "Porto Moniz", "Porto Santo", "Porto de Mós", "Povoação", "Praia da Vitória", "Proença-a-Nova", "Póvoa de Lanhoso", "Póvoa de Varzim", "Redondo", "Reguengos de Monsaraz", "Resende", "Ribeira Brava", "Ribeira Grande", "Ribeira de Pena", "Rio Maior", "Sabrosa", "Sabugal", "Salvaterra de Magos", "Santa Comba Dão", "Santa Cruz", "Santa Cruz da Graciosa", "Santa Cruz das Flores", "Santa Maria da Feira", "Santa Marta de Penaguião", "Santana", "Santarém", "Santiago do Cacém", "Santo Tirso", "São Brás de Alportel", "São João da Madeira", "São João da Pesqueira", "São Pedro do Sul", "São Roque do Pico", "São Vicente", "Sardoal", "Sátão", "Seia", "Seixal", "Sernancelhe", "Serpa", "Sertã", "Sesimbra", "Setúbal", "Sever do Vouga", "Silves", "Sines", "Sintra", "Sobral de Monte Agraço", "Soure", "Sousel", "Tábua", "Tabuaço", "Tarouca", "Tavira", "Terras de Bouro", "Tomar", "Tondela", "Torre de Moncorvo", "Torres Novas", "Torres Vedras", "Trancoso", "Trofa", "Vagos", "Vale de Cambra", "Valença", "Valongo", "Valpaços", "Velas", "Vendas Novas", "Viana do Alentejo", "Viana do Castelo", "Vidigueira", "Vieira do Minho", "Vila Flor", "Vila Franca de Xira", "Vila Franca do Campo", "Vila Nova da Barquinha", "Vila Nova de Cerveira", "Vila Nova de Famalicão", "Vila Nova de Foz Côa", "Vila Nova de Gaia", "Vila Nova de Paiva", "Vila Nova de Poiares", "Vila Pouca de Aguiar", "Vila Real", "Vila Real de Santo António", "Vila Velha de Ródão", "Vila Verde", "Vila Viçosa", "Vila de Rei", "Vila do Bispo", "Vila do Conde", "Vila do Porto", "Vimioso", "Vinhais", "Viseu", "Vizela", "Vouzela"};
         String[] localidades2 = {"Destino", "Águeda", "Aguiar da Beira", "Alandroal", "Albergaria-a-Velha", "Albufeira", "Alcácer do Sal", "Alcanena", "Alcobaça", "Alcochete", "Alcoutim", "Alenquer", "Alfândega da Fé", "Alijó", "Aljezur", "Aljustrel", "Almada", "Almeida", "Almeirim", "Almodôvar", "Alpiarça", "Alter do Chão", "Alvaiázere", "Alvito", "Amadora", "Amarante", "Amares", "Anadia", "Angra do Heroísmo", "Ansião", "Arcos de Valdevez", "Arganil", "Armamar", "Arouca", "Arraiolos", "Arronches", "Arruda dos Vinhos", "Aveiro", "Avis", "Azambuja", "Baião", "Barcelos", "Barrancos", "Barreiro", "Batalha", "Beja", "Belmonte", "Benavente", "Bombarral", "Borba", "Boticas", "Braga", "Bragança", "Cabeceiras de Basto", "Cadaval", "Caldas da Rainha", "Calheta (Madeira)", "Calheta (São Jorge)", "Caminha", "Campo Maior", "Cantanhede", "Carrazeda de Ansiães", "Carregal do Sal", "Cartaxo", "Cascais", "Castanheira de Pêra", "Castelo Branco", "Castelo de Paiva", "Castelo de Vide", "Castro Daire", "Castro Marim", "Castro Verde", "Celorico da Beira", "Celorico de Basto", "Chamusca", "Chaves", "Cinfães", "Coimbra", "Condeixa-a-Nova", "Constância", "Coruche", "Corvo", "Covilhã", "Crato", "Cuba", "Câmara de Lobos", "Elvas", "Entroncamento", "Espinho", "Esposende", "Estarreja", "Estremoz", "Évora", "Fafe", "Faro", "Felgueiras", "Ferreira do Alentejo", "Ferreira do Zêzere", "Figueira da Foz", "Figueira de Castelo Rodrigo", "Figueiró dos Vinhos", "Fornos de Algodres", "Freixo de Espada à Cinta", "Fronteira", "Funchal", "Fundão", "Gavião", "Golegã", "Gondomar", "Gouveia", "Grândola", "Guarda", "Guimarães", "Góis", "Horta", "Idanha-a-Nova", "Ílhavo", "Lagoa (Algarve)", "Lagoa (São Miguel)", "Lagos", "Lajes das Flores", "Lajes do Pico", "Lamego", "Leiria", "Lisboa", "Loulé", "Loures", "Lourinhã", "Lousã", "Lousada", "Mação", "Macedo de Cavaleiros", "Machico", "Madalena", "Mafra", "Maia", "Mangualde", "Manteigas", "Marco de Canaveses", "Marinha Grande", "Marvão", "Matosinhos", "Mealhada", "Meda", "Melgaço", "Mesão Frio", "Mira", "Miranda do Corvo", "Miranda do Douro", "Mirandela", "Mogadouro", "Moimenta da Beira", "Moita", "Monção", "Monchique", "Mondim de Basto", "Monforte", "Montalegre", "Montemor-o-Novo", "Montemor-o-Velho", "Montijo", "Mora", "Mortágua", "Moura", "Mourão", "Murça", "Murtosa", "Mértola", "Nazaré", "Nelas", "Nisa", "Nordeste", "Óbidos", "Odemira", "Odivelas", "Oeiras", "Oleiros", "Olhão", "Oliveira de Azeméis", "Oliveira de Frades", "Oliveira do Bairro", "Oliveira do Hospital", "Ourique", "Ourém", "Ovar", "Paços de Ferreira", "Palmela", "Pampilhosa da Serra", "Paredes", "Paredes de Coura", "Pedrógão Grande", "Penacova", "Penafiel", "Penalva do Castelo", "Penamacor", "Penedono", "Penela", "Peniche", "Peso da Régua", "Pinhel", "Pombal", "Ponta Delgada", "Ponta do Sol", "Ponte da Barca", "Ponte de Lima", "Ponte de Sor", "Portalegre", "Portel", "Portimão", "Porto", "Porto Moniz", "Porto Santo", "Porto de Mós", "Povoação", "Praia da Vitória", "Proença-a-Nova", "Póvoa de Lanhoso", "Póvoa de Varzim", "Redondo", "Reguengos de Monsaraz", "Resende", "Ribeira Brava", "Ribeira Grande", "Ribeira de Pena", "Rio Maior", "Sabrosa", "Sabugal", "Salvaterra de Magos", "Santa Comba Dão", "Santa Cruz", "Santa Cruz da Graciosa", "Santa Cruz das Flores", "Santa Maria da Feira", "Santa Marta de Penaguião", "Santana", "Santarém", "Santiago do Cacém", "Santo Tirso", "São Brás de Alportel", "São João da Madeira", "São João da Pesqueira", "São Pedro do Sul", "São Roque do Pico", "São Vicente", "Sardoal", "Sátão", "Seia", "Seixal", "Sernancelhe", "Serpa", "Sertã", "Sesimbra", "Setúbal", "Sever do Vouga", "Silves", "Sines", "Sintra", "Sobral de Monte Agraço", "Soure", "Sousel", "Tábua", "Tabuaço", "Tarouca", "Tavira", "Terras de Bouro", "Tomar", "Tondela", "Torre de Moncorvo", "Torres Novas", "Torres Vedras", "Trancoso", "Trofa", "Vagos", "Vale de Cambra", "Valença", "Valongo", "Valpaços", "Velas", "Vendas Novas", "Viana do Alentejo", "Viana do Castelo", "Vidigueira", "Vieira do Minho", "Vila Flor", "Vila Franca de Xira", "Vila Franca do Campo", "Vila Nova da Barquinha", "Vila Nova de Cerveira", "Vila Nova de Famalicão", "Vila Nova de Foz Côa", "Vila Nova de Gaia", "Vila Nova de Paiva", "Vila Nova de Poiares", "Vila Pouca de Aguiar", "Vila Real", "Vila Real de Santo António", "Vila Velha de Ródão", "Vila Verde", "Vila Viçosa", "Vila de Rei", "Vila do Bispo", "Vila do Conde", "Vila do Porto", "Vimioso", "Vinhais", "Viseu", "Vizela", "Vouzela"};
 
@@ -341,6 +333,7 @@ public class CreateRideFragment extends Fragment {
         originInput.setAdapter(adapter);
         destinationInput.setAdapter(adapter2);
 
+        //Definição dos dados do calendário
         final Calendar c = Calendar.getInstance();
         year = c.get(Calendar.YEAR);
         month = c.get(Calendar.MONTH);
@@ -349,7 +342,7 @@ public class CreateRideFragment extends Fragment {
         minute = c.get(Calendar.MINUTE);
         LocalDateTime rideDate;
 
-        //handler matriculas
+        //handler matriculas para apenas permitir o formato português
         licenseInput.addTextChangedListener(new TextWatcher() {
 
             int maxLength = 8;
@@ -381,6 +374,7 @@ public class CreateRideFragment extends Fragment {
             }
         });
 
+        //Click listener do calendário para escolher a data da boleia
         timeInput.setOnClickListener(v -> {
             DatePickerDialog picker = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
                 @Override
@@ -406,9 +400,11 @@ public class CreateRideFragment extends Fragment {
             picker.show();
         });
 
+        //Mudar para o fragmento MapsFragment
         locationInput.setOnClickListener(v -> {
             if (currentLocalGeoPoint != null) {
                 Bundle bundle = new Bundle();
+                //"Enviar" para
                 bundle.putParcelable("currentLocalGeoPoint", currentLocalGeoPoint);
                 MapsFragment mapsFragment = new MapsFragment();
                 mapsFragment.setArguments(bundle);
