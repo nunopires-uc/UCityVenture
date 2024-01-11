@@ -3,7 +3,7 @@
     <string name="nicknameInput">Email utilizador</string>
     <string name="passwordInput">Palavra-passe</string>
     <string name="emailInput">E-mail</string>
-    <string name="loginButton">login</string>
+    <string name="loginButton">Login</string>
     <string name="registerText">
 Não tem conta?
 <font color="#e9aa3f">Registe-se</font>
@@ -25,4 +25,29 @@ Esqueceu-se da palavra-passe?
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="searchDestinationPlaceholder">Procurar destino ...</string>
     <string name="searchOriginPlaceholder">Procurar origem ...</string>
+    <string name="recoverButtonText">Recuperar</string>
+    <string name="recoverSubText">RECUPERE A SUA PASSWORD</string>
+    <string name="recoverMainText">RECUPERAR</string>
+
+    <string name="createRideMainText">CRIAR</string>
+    <string name="createRideSubText">CRIE A SUA VIAGEM!</string>
+    <string name="createRideLicenseText">Matrícula</string>
+    <string name="createRideLugares">Lugares</string>
+    <string name="createRideDateTime">Data e hora</string>
+    <string name="createRideLocation">Localização</string>
+    <string name="createRideInformation">Informação (opcional)</string>
+    <string name="createRideCreateButton">Criar boleia</string>
+    <string name="loginMainText">LOGIN</string>
+    <string name="loginSubText">POR FAVOR EFETUE O LOGIN</string>
+    <string name="ponto_de_partida">PONTO DE PARTIDA</string>
+    <string name="street_name">Rua das fores</string>
+    <string name="map_create_button">Definir ponto de partida</string>
+    <string name="confirmar_boleia">Confirmar Boleia</string>
+    <string name="registerMainText">REGISTO</string>
+    <string name="registerSubText">REGISTE-SE NA PLATAFORMA</string>
+    <string name="criar_boleia">Criar boleia</string>
+    <string name="boleias_inscritas">Boleias inscritas</string>
+    <string name="minhas_boleias">Minhas boleias</string>
+    <string name="boleias">BOLEIAS</string>
+    <string name="os_seus_servi_os_de_boleias">OS SEUS SERVIÇOS DE BOLEIAS</string>
 </resources>

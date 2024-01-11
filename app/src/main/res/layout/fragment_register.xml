@@ -19,7 +19,7 @@
             android:layout_marginTop="64dp"
             android:fontFamily="@font/ubuntu_bold"
             android:gravity="left"
-            android:text="REGISTO"
+            android:text="@string/registerMainText"
             android:textColor="@color/black"
             android:textSize="60dp" />
 
@@ -30,7 +30,7 @@
             android:layout_marginStart="32dp"
             android:fontFamily="@font/ubuntu_light_italic"
             android:gravity="left"
-            android:text="REGISTE-SE NA PLATAFORMA"
+            android:text="@string/registerSubText"
             android:textColor="@color/dark_gray"
             android:textSize="25dp" />
 

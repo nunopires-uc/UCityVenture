@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".MyRidesFragment">
+    tools:context=".SubscribedRidesFragment">
 
     <TextView
         android:id="@+id/myServicesTitle"
@@ -15,7 +15,7 @@
         android:layout_marginTop="28dp"
         android:fontFamily="@font/ubuntu_bold"
         android:gravity="left"
-        android:text="@string/boleias"
+        android:text="BOLEIAS"
         android:textColor="@color/black"
         android:textSize="60dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,12 +23,13 @@
 
     <TextView
         android:id="@+id/myServicesSubTitle"
-        android:layout_width="400dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:fontFamily="@font/ubuntu_light_italic"
         android:gravity="left"
-        android:text="@string/os_seus_servi_os_de_boleias"
+        android:text="AS BOLEIAS EM QUE ESTÁ INSCRITO"
         android:textColor="@color/dark_gray"
         android:textSize="25dp"
         app:layout_constraintStart_toStartOf="parent"

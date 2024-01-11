@@ -45,7 +45,7 @@ public class LoginFragment extends Fragment {
 
     FirebaseAuth mAuth;
 
-    TextView registerText;
+    TextView registerText, forgotPasswordText;
 
     ProgressBar progressBar;
 
@@ -96,6 +96,7 @@ public class LoginFragment extends Fragment {
         loginButton = view.findViewById(R.id.loginButton);
         registerText = view.findViewById(R.id.registerText);
         progressBar = view.findViewById(R.id.progressBar);
+        forgotPasswordText = view.findViewById(R.id.forgotPasswordText);
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -164,6 +165,10 @@ public class LoginFragment extends Fragment {
             public void onClick(View view) {
                 ((MainActivity)getActivity()).MudarFragmentoPOP(new RegisterFragment());
             }
+        });
+
+        forgotPasswordText.setOnClickListener(v -> {
+            ((MainActivity)getActivity()).MudarFragmentoPOP(new RecoverPasswordFragment());
         });
     }
 }

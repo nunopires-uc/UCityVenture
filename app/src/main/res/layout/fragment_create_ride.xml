@@ -116,7 +116,7 @@
                 android:drawablePadding="10dp"
                 android:ems="10"
                 android:fontFamily="@font/ubuntu_light_italic"
-                android:hint="Matrícula"
+                android:hint="@string/createRideLicenseText"
                 android:inputType="textPersonName"
                 android:paddingLeft="15dp"
                 android:textAllCaps="true"
@@ -134,7 +134,7 @@
                 android:drawablePadding="10dp"
                 android:ems="10"
                 android:fontFamily="@font/ubuntu_light_italic"
-                android:hint="Lugares"
+                android:hint="@string/createRideLugares"
                 android:inputType="number"
                 android:paddingLeft="15dp"
                 android:textSize="20dp"
@@ -158,7 +158,7 @@
                 android:drawablePadding="10dp"
                 android:ems="10"
                 android:fontFamily="@font/ubuntu_light_italic"
-                android:hint="Data e hora"
+                android:hint="@string/createRideDateTime"
                 android:inputType="datetime"
                 android:textSize="20dp"
                 android:clickable="false"
@@ -183,7 +183,7 @@
                 android:focusable="false"
                 android:focusableInTouchMode="false"
                 android:fontFamily="@font/ubuntu_light_italic"
-                android:hint="Localização"
+                android:hint="@string/createRideLocation"
                 android:inputType="datetime"
                 android:paddingLeft="15dp"
                 android:textSize="20dp" />
@@ -199,7 +199,7 @@
                 android:drawablePadding="10dp"
                 android:ems="10"
                 android:fontFamily="@font/ubuntu_light_italic"
-                android:hint="Informação (opcional)"
+                android:hint="@string/createRideInformation"
                 android:inputType="text"
                 android:paddingLeft="15dp"
                 android:textSize="20dp" />
@@ -216,7 +216,7 @@
                 android:fontFamily="@font/ubuntu_medium"
                 android:paddingLeft="30dp"
                 android:paddingRight="30dp"
-                android:text="Criar boleia"
+                android:text="@string/createRideCreateButton"
                 android:textSize="16dp"
                 app:backgroundTint="@color/mainOrange" />
 

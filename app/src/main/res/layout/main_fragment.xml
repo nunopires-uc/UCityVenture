@@ -86,7 +86,7 @@
             android:background="@drawable/rounded_edges_button"
             android:fontFamily="@font/ubuntu_medium"
             android:padding="5dp"
-            android:text="Criar boleia"
+            android:text="@string/criar_boleia"
             android:textSize="16dp"
             app:backgroundTint="@color/mainOrange" />
 
@@ -101,7 +101,7 @@
             android:background="@drawable/rounded_edges_button"
             android:fontFamily="@font/ubuntu_medium"
             android:padding="5dp"
-            android:text="Boleias inscritas"
+            android:text="@string/boleias_inscritas"
             android:textSize="16dp"
             app:backgroundTint="@color/mainOrange" />
 
@@ -116,7 +116,7 @@
             android:background="@drawable/rounded_edges_button"
             android:fontFamily="@font/ubuntu_medium"
             android:padding="5dp"
-            android:text="Minhas boleias"
+            android:text="@string/minhas_boleias"
             android:textSize="16dp"
             app:backgroundTint="@color/mainOrange" />
 
