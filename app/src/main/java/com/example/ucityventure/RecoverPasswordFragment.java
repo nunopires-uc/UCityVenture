@@ -79,11 +79,14 @@ public class RecoverPasswordFragment extends Fragment {
         recoverButton = v.findViewById(R.id.recoverButton);
         emailInput = v.findViewById(R.id.emailInput);
 
+        //Botao de recuperação de password
         recoverButton.setOnClickListener(v -> {
             if(!emailInput.getText().toString().equals("")){
                 FirebaseAuth auth = FirebaseAuth.getInstance();
+                //Recebe a string obtida pela EditText
                 String emailAddress = emailInput.getText().toString();
 
+                //Envia um email de recuperação para o utilizador
                 auth.sendPasswordResetEmail(emailAddress)
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
@@ -91,6 +94,7 @@ public class RecoverPasswordFragment extends Fragment {
                                 if (task.isSuccessful()) {
                                     Snackbar.make(v, "E-mail enviado! Siga as instruções para recuperar a sua palavra-passe!", Snackbar.LENGTH_LONG).show();
                                 } else {
+                                    //Se o email não existir ou for inválido apresenta uma mensagem de erro
                                     Snackbar.make(v, "E-mail inválido ou incorreto!", Snackbar.LENGTH_LONG).show();
                                 }
                             }

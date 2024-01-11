@@ -122,6 +122,7 @@ public class SubscribedRidesFragment extends Fragment {
         return v;
     }
 
+    //Função que recolhe os dados da base de dados e popula a lista
     public void populateListFromDatabase(View v){
         ridesList.clear();
         executor.execute(() -> {

@@ -51,7 +51,7 @@ public class MyRidesFragment extends Fragment {
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    //isto é o id do user que ta logado
+    //ID do utilizador atualmente autenticado
     String uuid = FirebaseAuth.getInstance().getCurrentUser().getUid().toString();
 
 
@@ -118,6 +118,7 @@ public class MyRidesFragment extends Fragment {
         return v;
     }
 
+    //Função que recolhe os dados da base de dados e popula a lista
     public void populateListFromDatabase(View v){
         ridesList.clear();
         executor.execute(() -> {
@@ -129,11 +130,7 @@ public class MyRidesFragment extends Fragment {
                             if (task.isSuccessful()) {
                                 for (QueryDocumentSnapshot document : task.getResult()) {
                                     mainHandler.post(() -> {
-                                        /*
-                                        check whether the Fragment is currently added to its Activity before attempting to use requireActivity().
-                                        You can do this by calling the isAdded() method, which returns true if the Fragment is currently added to
-                                        the Activity
-                                         */
+                                        //Recebe os dados da BD
                                         if(isAdded()){
                                             String destination = document.getData().get("destination").toString();
                                             String info = document.getData().get("info").toString();
@@ -152,6 +149,7 @@ public class MyRidesFragment extends Fragment {
 
                                             String id = document.getId();
 
+                                            //Compila tudo num objeto de boleia
                                             Ride ride = new Ride();
                                             ride.setDestination(destination);
                                             ride.setInfo(info);
@@ -166,7 +164,7 @@ public class MyRidesFragment extends Fragment {
                                             ride.setTime(time);
                                             ride.setId(id);
 
-
+                                            //Adiciona apenas as boleias em que o "provider" tem o ID do utilizador atualmente autenticado
                                             if(ride.getProvider().equals(uuid)){
                                                 ridesList.add(ride);
                                             }
@@ -194,9 +192,11 @@ public class MyRidesFragment extends Fragment {
         });
     }
 
+    //Escuta alterações
     void listenForChanges(View v){
 
         executor.execute(()-> {
+            //este listener escuta alterações na tabela "rides"
             db.collection("rides")
                     .addSnapshotListener(MetadataChanges.EXCLUDE, new EventListener<QuerySnapshot>() {
                         @Override
@@ -210,6 +210,7 @@ public class MyRidesFragment extends Fragment {
                                 Log.d(TAG, "IT CHANGED");
                             }
                             //cardItems.clear();
+                            //volta a popular a lista
                             populateListFromDatabase(v);
                         }
                     });

@@ -120,6 +120,7 @@ public class RegisterFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
+        //Verifica se existe conexão à internet, caso não exista, redireciona o utilizador para ligar o wifi
         if(!CommonClass.isNetworkAvailable(getContext())){
             new AlertDialog.Builder(getActivity())
                     .setTitle("Não existe conexão à internet, deseja ligar o Wifi?")
@@ -137,10 +138,11 @@ public class RegisterFragment extends Fragment {
                     .show();
         }
 
-        //Elementos
+        //Componentes
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Recebe os valores das EditTexts
                 String name = nameInput.getText().toString();
                 String password = passInput.getText().toString();
                 String passwordConfirm = passConfirmInput.getText().toString();
@@ -148,15 +150,19 @@ public class RegisterFragment extends Fragment {
 
                 progressBar.setVisibility(View.VISIBLE);
 
+                //Tamanho minimo de password
                 int password_minsize = 6;
+                //Verificação dos valores das EditTexts
                 if(!name.equals("") && !password.equals("") && !passwordConfirm.equals("")) {
                     if(password.equals(passwordConfirm)){
                         if(password.length() >= password_minsize) {
+                            //Criar novo utilizador na base de dados
                             mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(requireActivity(), new OnCompleteListener<AuthResult>() {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
 
                                     if (task.isSuccessful()) {
+                                        //Definir os vários parâmetros do utilizador
                                         FirebaseUser user = mAuth.getCurrentUser();
 
                                         User userClass = new User();
@@ -175,6 +181,8 @@ public class RegisterFragment extends Fragment {
                                                         progressBar.setVisibility(View.GONE);
                                                         Log.d(TAG, "DocumentSnapshot added with ID: " + user.getUid());
                                                         Snackbar.make(view, "User created successfully", Snackbar.LENGTH_LONG).show();
+
+                                                        //Assim que a conta é criada o utilizador é redirecionado para o menu principal da aplicação
                                                         ((MainActivity)getActivity()).MudarFragmento(new MainFragment());
                                                     }
                                                 })
