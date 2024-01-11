@@ -11,12 +11,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity {
 
-    //caçador de ciganos
-    //Olá
-    //mequie
-
     String Root_Frag = "root_fagment";
 
+    //Carregar fragmentos, função para o primeiro fragmento
     public void CarregarFragmento(Fragment fragment_name) {
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
@@ -28,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
         ft.commit();
     }
 
+    //Mudar de fragmento
     public void MudarFragmento(Fragment fragment_name){
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
@@ -41,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
         invalidateOptionsMenu();
     }
 
+    //Sair do fragmento atual
     public void PopCurrentFragment() {
         FragmentManager fm = getSupportFragmentManager();
         if (fm.getBackStackEntryCount() > 0) {
@@ -65,7 +64,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -76,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
          */
 
+        //Carregar o LoginFragment
         CarregarFragmento(new LoginFragment());
     }
 }

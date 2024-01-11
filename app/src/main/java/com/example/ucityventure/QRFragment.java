@@ -124,23 +124,24 @@ public class QRFragment extends Fragment {
                             if (result.getContents() == null) {
                                 Toast.makeText(getContext(), "Scan cancelled", Toast.LENGTH_LONG).show();
                             } else {
+                                // analisar conteudo capturado pela camera
                                 String qrContents = result.getContents();
-                                // Handle the scanned QR code here
 
-                                CollectionReference transactionsCollection = db.collection("transactions");
-                                DocumentReference documentRef = transactionsCollection.document("MLRkVMuqJElVYxbD9jxP");
+                                //Criar um pin aleatorio
                                 Random random = new Random();
                                 PIN = String.format("%04d", random.nextInt(10000));
 
                                 //PIN userID readID status
-                                String newQueueElement = PIN + "+" + "hb546ehn7e5j85e78jjn4" + "+" + qrContents + "+" + "0";
+                                //String newQueueElement = PIN + "+" + "hb546ehn7e5j85e78jjn4" + "+" + qrContents + "+" + "0";
 
+                                //Scan confirmation element
                                 ScanConfirmation scelement = new ScanConfirmation();
                                 scelement.setPIN(PIN);
                                 scelement.setUserID(uuid);
                                 scelement.setProviderID(qrContents);
                                 scelement.setStatus("0");
 
+                                //Colocar na coleção a transação
                                 db.collection("myqrconfirmations")
                                         .document(scelement.getPIN()) // Use the random ID as the document ID
                                         .set(scelement)       // Set the data for the document
@@ -180,29 +181,14 @@ public class QRFragment extends Fragment {
     }
 
     private void startQRScanner() {
+        //Aspeto visual do qrscanner, e opções
         ScanOptions scanOptions = new ScanOptions();
         scanOptions.setOrientationLocked(true);
         scanOptions.setDesiredBarcodeFormats(String.valueOf(BarcodeFormat.QR_CODE));
         scanOptions.setPrompt("");
+        //iniciar o Qr scanner
         scanQrResultLauncher.launch(new ScanContract().createIntent(getContext(), scanOptions));
     }
-
-    private final ActivityResultLauncher<String> requestPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    startQRScanner();
-                } else {
-                    Toast.makeText(getActivity(), "Camera permission is required", Toast.LENGTH_LONG).show();
-                }
-            });
-
-    private final ActivityResultLauncher<Intent> activityResultLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == RESULT_OK) {
-                    Intent data = result.getData();
-                    Log.d("Dados", data.toString());
-                }
-            });
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -225,18 +211,21 @@ public class QRFragment extends Fragment {
 
         MultiFormatWriter mWriter = new MultiFormatWriter();
         try {
-            //BitMatrix class to encode entered text and set Width & Height
+            //Criar um qrcode com base no id do utilizador logado
             BitMatrix mMatrix = mWriter.encode(uuid, BarcodeFormat.QR_CODE, 400,400);
             BarcodeEncoder mEncoder = new BarcodeEncoder();
-            Bitmap mBitmap = mEncoder.createBitmap(mMatrix);//creating bitmap of code
-            imageCode.setImageBitmap(mBitmap);//Setting generated QR code to imageView
-            // to hide the keyboard
+            //Criar um mapa de bits do código
+            Bitmap mBitmap = mEncoder.createBitmap(mMatrix);
+            //Definir o código QR gerado para a imageView
+            imageCode.setImageBitmap(mBitmap);
+            // Para ocultar o teclado
             /*InputMethodManager manager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             manager.hideSoftInputFromWindow(etText.getApplicationWindowToken(), 0);*/
         } catch (WriterException e) {
             e.printStackTrace();
         }
 
+        //Iniciar o leitor
         createRideButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -244,9 +233,11 @@ public class QRFragment extends Fragment {
             }
         });
 
+        //Observador da transação gerada
         pinLiveData.observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(@Nullable String pin) {
+                //fica à escuta com o pin da transação
                 DocumentReference docRef = db.collection("myqrconfirmations").document(pin);
                 docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
                     @Override
@@ -261,23 +252,26 @@ public class QRFragment extends Fragment {
                             Log.d("MyPIN", pin.toString());
                             Log.d("QRFragment", "Current data: " + snapshot.getData());
 
+                            //retira o estado da transação, que foi manipulado pelo servidor
                             String status = snapshot.get("status").toString();
 
                             progressBar.setVisibility(View.VISIBLE);
 
+                            //verificar o estado da transação, 0 o servidor não fez nenhuma modificação
                             if(!status.equals("0")){
                                 progressBar.setVisibility(View.GONE);
+                                //Se o estado for -1 então a boleia nao pertence à pessoa
                                 if(status.equals("-1")){
                                     CorrectHitchhikeText.setText("A boleia está incorreta!");
                                     imageViewStatus.setImageResource(R.drawable.baseline_error_24);
                                     CorrectHitchhikeText.setVisibility(View.VISIBLE);
                                     imageViewStatus.setVisibility(View.VISIBLE);
                                 }else{
+                                    //Caso a boleia esteja correta apresenta imagem de sucesso
                                     CorrectHitchhikeText.setVisibility(View.VISIBLE);
                                     imageViewStatus.setVisibility(View.VISIBLE);
                                 }
                             }
-                            // You can retrieve the fields from the document and update the UI here.
                         } else {
                             Log.d("QRFragment", "Current data: null");
                         }
@@ -290,8 +284,7 @@ public class QRFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        // Reset the orientation to allow system handling
+        // Redefinir a orientação
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
     }
 }

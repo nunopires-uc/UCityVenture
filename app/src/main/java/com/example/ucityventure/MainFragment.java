@@ -53,7 +53,7 @@ public class MainFragment extends Fragment {
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    //ID do utilizador atualmente autenticado
+    //isto é o id do user que ta logado
     String uuid = FirebaseAuth.getInstance().getCurrentUser().getUid().toString();
     View v;
 
@@ -121,12 +121,9 @@ public class MainFragment extends Fragment {
             ListView listView = v.findViewById(R.id.ListViewRides);
             listView.setAdapter(adapter);
 
-            //Escuta alterações na base de dados e atualiza a lista assim que algo se altere
             listenForChanges(v);
         }
 
-
-        //Assim que o texto é alterado na EditText da origem, a lista é filtrada consoante o input
         originInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -145,7 +142,6 @@ public class MainFragment extends Fragment {
             }
         });
 
-        //Assim que o texto é alterado na EditText do destino, a lista é filtrada consoante o input
         destinationInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -175,7 +171,6 @@ public class MainFragment extends Fragment {
         myRidesButton = v.findViewById(R.id.myRidesButton);
         subscribedRidesButton = v.findViewById(R.id.subscribedRidesButton);
 
-        //Redirecionar para o fragment de criação de boleia
         createRideButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -184,8 +179,6 @@ public class MainFragment extends Fragment {
             }
         });
 
-
-        //Redirecionar para o fragment de scan do código QR
         ScanQRButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -193,14 +186,10 @@ public class MainFragment extends Fragment {
             }
         });
 
-        //Redirecionar para o fragment de listagem das boleias prestadas
-
         myRidesButton.setOnClickListener(v -> {
             ((MainActivity)getActivity()).MudarFragmentoPOP(new MyRidesFragment());
 
         });
-
-        //Redirecionar para o fragment de listagem das boleias inscritas
 
         subscribedRidesButton.setOnClickListener(v -> {
             ((MainActivity)getActivity()).MudarFragmentoPOP(new SubscribedRidesFragment());
@@ -208,7 +197,6 @@ public class MainFragment extends Fragment {
 
     }
 
-    //Função que recolhe os dados da base de dados e popula a lista
     public void populateListFromDatabase(View v){
         ridesList.clear();
         executor.execute(() -> {
@@ -220,10 +208,12 @@ public class MainFragment extends Fragment {
                             if (task.isSuccessful()) {
                                 for (QueryDocumentSnapshot document : task.getResult()) {
                                     mainHandler.post(() -> {
-
+                                        /*
+                                        check whether the Fragment is currently added to its Activity before attempting to use requireActivity().
+                                        You can do this by calling the isAdded() method, which returns true if the Fragment is currently added to
+                                        the Activity
+                                         */
                                         if(isAdded()){
-
-                                            //Recebe os dados da BD
                                             String destination = document.getData().get("destination").toString();
                                             String info = document.getData().get("info").toString();
                                             String license = document.getData().get("license").toString();
@@ -241,8 +231,6 @@ public class MainFragment extends Fragment {
 
                                             String id = document.getId();
 
-
-                                            //Compila tudo num objeto de boleia
                                             Ride ride = new Ride();
                                             ride.setDestination(destination);
                                             ride.setInfo(info);
@@ -257,7 +245,6 @@ public class MainFragment extends Fragment {
                                             ride.setTime(time);
                                             ride.setId(id);
 
-                                            //Adiciona todas as boleias existentes
                                             ridesList.add(ride);
 
 
@@ -281,11 +268,9 @@ public class MainFragment extends Fragment {
         });
     }
 
-    //Escuta alterações
     void listenForChanges(View v){
 
         executor.execute(()-> {
-            //este listener escuta alterações na tabela "rides"
             db.collection("rides")
                     .addSnapshotListener(MetadataChanges.EXCLUDE, new EventListener<QuerySnapshot>() {
                         @Override
@@ -299,15 +284,18 @@ public class MainFragment extends Fragment {
                                 Log.d(TAG, "IT CHANGED");
                             }
                             //cardItems.clear();
-                            //volta a popular a lista
                             populateListFromDatabase(v);
                         }
                     });
         });
     }
 
+    public boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null;
+    }
 
-    //filtra as viagens consoante a função presente no CustomAdapter
     public void filterListByText(String originQuery, String destinationQuery){
         if(adapter != null){
 

@@ -1,32 +1,20 @@
 package com.example.ucityventure;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
-
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-
-import com.google.android.gms.common.util.CollectionUtils;
-
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
@@ -35,10 +23,7 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
-import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
@@ -118,13 +103,14 @@ public class MapsFragment extends Fragment {
 
     private Marker marker; // Keep a reference to the marker
 
+    //Colocar um pin no mapa
     private void addMarkerAtLocation(GeoPoint p) {
         if (marker != null) {
-            // Remove the existing marker
+            // Remover o marcador existente
             map.getOverlays().remove(marker);
         }
 
-        // Create a marker at the specified location
+        // Criar um marcador no local especificado
         marker = new Marker(map);
         marker.setPosition(p);
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
@@ -132,18 +118,16 @@ public class MapsFragment extends Fragment {
         map.invalidate();
 
         currentpoint = getAddressFromLocation(p);
-        Log.d("End", currentpoint.getAddressLine(0));
 
+        //Colocar no canto superior a rua do marcador escolhido
         subTitle.setText(currentpoint.getAddressLine(0).toString());
         selectedGeoPoint = new GeoPoint(currentpoint.getLatitude(), currentpoint.getLongitude());
-        // Use a geocoding service to get the street name
-        // Note: This is a placeholder, replace with your chosen geocoding service
-        // String streetName = getStreetName(p);
 
         Log.i("MapsFragment", "Selected location: " + ", " + p.getLatitude() + ", " + p.getLongitude());
 
     }
 
+    // Retirar o endereço dado uma localização
     public Address getAddressFromLocation(GeoPoint p) {
         Geocoder geocoder;
         List<Address> addresses;
@@ -155,10 +139,10 @@ public class MapsFragment extends Fragment {
                 Address add = addresses.get(0);
                 return add;
             } else {
-                // handle case where no addresses were found
+                // tratar os casos em que não foram encontrados endereços
             }
         } catch (IOException e) {
-            // handle exception
+            // Não fazer nada
         }
         return null;
     }
@@ -173,17 +157,21 @@ public class MapsFragment extends Fragment {
         setPosButton = view.findViewById(R.id.setPosButton);
         GeoPoint startPoint;
 
-        // Load/initialize the osmdroid configuration
+        // Carregar/inicializar a configuração do osmdroid
         Context ctx = getActivity().getApplicationContext();
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
-        // Initialize the map view
+        // Inicializar a vista do mapa
         map = (MapView) view.findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
+        // O método está deprecado, mas era como estava na documentação
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
+        // permite controlo no mapa
         mapController = map.getController();
+        // colocar o zoom
         mapController.setZoom(9.5);
 
+        //se a localização for nula, colocar o marcador numa localização default
         if(currentLocalGeoPoint != null){
             startPoint = new GeoPoint(currentLocalGeoPoint.getLatitude(), currentLocalGeoPoint.getLongitude());
         }else{
@@ -194,6 +182,7 @@ public class MapsFragment extends Fragment {
         addMarkerAtLocation(startPoint);
 
 
+        //Controlo para mudar o marcador quando se prime no mapa
         MapEventsOverlay mapEventsOverlay = new MapEventsOverlay(new MapEventsReceiver() {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
@@ -209,14 +198,14 @@ public class MapsFragment extends Fragment {
             }
         });
 
-        // Add MapEventsOverlay to the map
+        // Adicionar MapEventsOverlay ao mapa (funções de toque)
         map.getOverlays().add(0, mapEventsOverlay);
 
 
+        //Colocar no sharedviewmodel o endereço, latitude, longitude do ponto escolhido
         setPosButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.i("emoji", selectedGeoPoint.toString());
                 if(model != null){
                     CompoundLocation cl = new CompoundLocation(currentpoint, selectedGeoPoint.getLatitude(), selectedGeoPoint.getLongitude());
                     model.selectCompoundLocation(cl);
@@ -224,8 +213,6 @@ public class MapsFragment extends Fragment {
                         getParentFragmentManager().popBackStack();
                     }
                 }
-                // Update other data in the model
-                // Navigate back to CreateRideFragment
             }
         });
     }
