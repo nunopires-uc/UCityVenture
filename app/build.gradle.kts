@@ -38,6 +38,7 @@ dependencies {
     implementation("com.google.zxing:core:3.3.3")
     implementation("com.google.firebase:firebase-auth:22.3.0")
     implementation("org.osmdroid:osmdroid-android:6.1.17")
+    implementation("com.github.MKergall:osmbonuspack:6.9.0")
     implementation("com.google.firebase:firebase-firestore:24.10.0")
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.maps.android:android-maps-utils:3.8.0")

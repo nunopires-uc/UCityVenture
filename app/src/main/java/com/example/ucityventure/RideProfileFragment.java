@@ -432,4 +432,11 @@ public class RideProfileFragment extends Fragment {
         }
         return null;
     }
+
+
+    public void createPath(Context context){
+        RoadManager roadManager = new OSRMRoadManager(this);
+
+
+    }
 }
