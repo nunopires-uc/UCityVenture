@@ -87,7 +87,7 @@ public class RideProfileFragment extends Fragment {
     private SharedViewModel model;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    //isto é o id do user que ta logado
+    //ID do utilizadores autenticado atualmente
     String uuid = FirebaseAuth.getInstance().getCurrentUser().getUid().toString();
 
     public RideProfileFragment() {
@@ -118,8 +118,7 @@ public class RideProfileFragment extends Fragment {
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
-            selectedRide = getArguments().getParcelable("selectedRide");
-            Log.i("Kazzio", selectedRide.toString());
+
         }
 
 
@@ -167,21 +166,16 @@ public class RideProfileFragment extends Fragment {
 
 
 
-
+        //Se os dados tiverem sido corretamente recebidos, devem ser apresentados usando a função "setRideValues"
+        //o "listenForChanges" escuta alterações à viagem em questão e atualiza os dados casa se verifique uma alteração
         if(selectedRide != null){
-
             setRideValues(selectedRide);
             listenForChanges(selectedRide);
-
-
-
-
-
-
 
         }
     }
 
+    //Função que permite adicionar a inscrição de um determinado User a uma determinada boleia
     public void subRide(String userID, Ride ride){
 
         ArrayList<String> novaLista = ride.getRidePassangers();
@@ -189,8 +183,10 @@ public class RideProfileFragment extends Fragment {
 
 
         executor.execute(() -> {
+            //Através da criação de uma referência da coleção
             DocumentReference docRef = db.collection("rides").document(ride.getId());
 
+            //Substituir o objeto de viagem por um novo com a lista de passageiros atualizada
             docRef.update("ridePassangers", novaLista)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
@@ -210,15 +206,18 @@ public class RideProfileFragment extends Fragment {
                     });
         });
     }
-
+    //Função que permite remover a inscrição de um determinado User a uma determinada boleia
     public void unsubRide(String userID, Ride ride){
         ArrayList<String> novaLista = ride.getRidePassangers();
         novaLista.remove(userID);
 
 
         executor.execute(() -> {
+            //Através da criação de uma referência da coleção
             DocumentReference docRef = db.collection("rides").document(ride.getId());
 
+
+            //Substituir o objeto de viagem por um novo com a lista de passageiros atualizada
             docRef.update("ridePassangers", novaLista)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
@@ -239,6 +238,7 @@ public class RideProfileFragment extends Fragment {
         });
     }
 
+    //Escuta alterações numa determinada boleia e atualiza os dados apresentados
     void listenForChanges(Ride selectedRide) {
         executor.execute(() -> {
             db.collection("rides").document(selectedRide.getId())
@@ -252,6 +252,7 @@ public class RideProfileFragment extends Fragment {
 
                             if (snapshot != null && snapshot.exists()) {
                                 Log.d(TAG, "Document data: " + snapshot.getData());
+                                //assim que exista alguma alteração na tabela "rides/[id da boleia]", os valores sao repostos pelos mais atualizados
                                 setRideValues(snapshot.toObject(Ride.class));
                             } else {
                                 Log.d(TAG, "Current data: null");
@@ -261,7 +262,7 @@ public class RideProfileFragment extends Fragment {
         });
     }
 
-
+    //Define os dados a serem apresentados no ecrã
     void setRideValues(Ride selectedRide){
         mainTitle.setText("Boleia para " + selectedRide.getDestination());
         subTitle.setText("Desde " + selectedRide.getOrigin());
@@ -278,25 +279,14 @@ public class RideProfileFragment extends Fragment {
         }
 
 
-
-
-
-
-
-
+        //Adiciona um marcador nas coordenadas do local de origem da boleia
         GeoPoint startPoint = new GeoPoint(selectedRide.getOriginLat(), selectedRide.getOriginLon());
-
         mapController.setCenter(startPoint);
         addMarkerAtLocation(startPoint);
 
 
 
-
-
-
-
-
-        //Ir buscar o objeto do provider
+        //Ir buscar o objeto do provider da boleia
         DocumentReference docRef = db.collection("users").document(selectedRide.getProvider()); // Replace with your collection name and document ID
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -305,11 +295,14 @@ public class RideProfileFragment extends Fragment {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
 
+                        //Receber o objeto do utilizador
                         provider = document.toObject(User.class);
 
                         driverName.setText(provider.getNome());
                         driverNickname.setText(provider.getEmail());
 
+
+                        //Calcula o rating do utilizador
                         if(provider.getSomaRatings() != 0 && provider.getNumRatings() != 0){
                             float rating = provider.getSomaRatings() / provider.getNumRatings();
                             String fRating = String.format("%.02f", rating);
@@ -330,6 +323,8 @@ public class RideProfileFragment extends Fragment {
             }
         });
 
+
+        //Se quem está a aceder ao perfil de boleia for o próprio utilizador que a criou, o botão não é apresentado
         if(selectedRide.getProvider().equals(uuid)){
             joinButton.setVisibility(View.INVISIBLE);
         } else {
@@ -337,46 +332,45 @@ public class RideProfileFragment extends Fragment {
         }
 
 
-        //Botao de entrar
+        //Lógica de apresentação do botão de entrar/sair de boleia
         if(selectedRide.getRidePassangers().size() >= selectedRide.getRideCapacity()){
-            //cheia
+            //Está cheia
             joinButton.setEnabled(false);
             joinButton.setText("Cheio");
 
         } else {
-            //com vagas
+            //Tem vagas
             joinButton.setEnabled(true);
             joinButton.setText("Entrar");
         }
 
         if(selectedRide.getRidePassangers().contains(uuid)){
-            //o user ta inscrito nesta ride
+            //Já está inscrito
             joinButton.setEnabled(true);
             joinButton.setText("Inscrito");
-        } else {
-            //nao esta inscrito
         }
 
+        //Lógica de inscrição/desinscrição na boleia
         joinButton.setOnClickListener(v -> {
             if(selectedRide.getRidePassangers().contains(uuid)){
-                //ta inscrito - Sair
+                //Está inscrito - Sair
                 unsubRide(uuid, selectedRide);
                 joinButton.setText("Entrar");
 
             } else {
-                //nao ta
+                //Não está inscrito
                 if(joinButton.getText().toString().equals("Entrar")){
-                    //quer entrar
+                    //Entrar
                     if(selectedRide.getRidePassangers().size() < selectedRide.getRideCapacity()){
-                        //ha vagas
+                        //Tem vagas
                         subRide(uuid, selectedRide);
                         joinButton.setText("Sair");
                     } else {
-                        //nao ha vagas
-                        //Snackbar.make(view, "Não existem vagas", Snackbar.LENGTH_SHORT).show();
+                        //Não tem vagas
+
                     }
                 } else {
-                    //quer sair
+                    //Sair
                     unsubRide(uuid, selectedRide);
                     joinButton.setText("Entrar");
                 }
@@ -387,7 +381,7 @@ public class RideProfileFragment extends Fragment {
 
 
     }
-
+    //Adicionar marcador num ponto especifico
     private void addMarkerAtLocation(GeoPoint p) {
         if (marker != null) {
             // Remove the existing marker
@@ -414,6 +408,7 @@ public class RideProfileFragment extends Fragment {
 
     }
 
+    //Devolve uma morada de um determinado ponto geográfico
     public Address getAddressFromLocation(GeoPoint p) {
         Geocoder geocoder;
         List<Address> addresses;

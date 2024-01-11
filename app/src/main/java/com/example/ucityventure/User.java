@@ -7,6 +7,10 @@ public class User {
     private int numRatings;
     private Float somaRatings;
 
+    //Classe para os utilizadores, todos os parâmetros são auto explicativos
+
+    //parametros numRatings e somaRatings servem para calcular a pontuacao do utilizador que presta um serviço de boleia
+
     public User(String email, String id, String nome, int numRatings, Float somaRatings) {
         this.email = email;
         this.id = id;

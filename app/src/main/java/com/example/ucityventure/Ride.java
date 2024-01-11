@@ -8,6 +8,9 @@ import androidx.annotation.NonNull;
 import java.util.ArrayList;
 
 public class Ride implements Parcelable{
+
+    //Classe referente às boleias
+    //Todos os parâmetros são auto-explicativos
     private String destination;
     private String info;
     private String license;
