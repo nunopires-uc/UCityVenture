@@ -37,7 +37,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import org.checkerframework.checker.units.qual.A;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -53,7 +56,7 @@ public class MainFragment extends Fragment {
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    //isto é o id do user que ta logado
+    //ID do utilizador atualmente autenticado
     String uuid = FirebaseAuth.getInstance().getCurrentUser().getUid().toString();
     View v;
 
@@ -121,9 +124,11 @@ public class MainFragment extends Fragment {
             ListView listView = v.findViewById(R.id.ListViewRides);
             listView.setAdapter(adapter);
 
+            //Escuta alterações na base de dados e atualiza a lista quando algo se alterar
             listenForChanges(v);
         }
 
+        //Assim que o texto da EditText mudar , procurar pelo input
         originInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -142,6 +147,7 @@ public class MainFragment extends Fragment {
             }
         });
 
+        //Assim que o texto da EditText mudar , procurar pelo input
         destinationInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -197,6 +203,7 @@ public class MainFragment extends Fragment {
 
     }
 
+    //popula a lista de boleias
     public void populateListFromDatabase(View v){
         ridesList.clear();
         executor.execute(() -> {
@@ -245,7 +252,21 @@ public class MainFragment extends Fragment {
                                             ride.setTime(time);
                                             ride.setId(id);
 
-                                            ridesList.add(ride);
+                                            SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyyy H:m:s");
+                                            try {
+                                                Date specifiedDate = sdf.parse(ride.getTime());
+                                                Date currentDate = new Date();
+
+
+                                                if (specifiedDate.after(currentDate)) {
+                                                    ridesList.add(ride);
+                                                }
+                                            } catch (ParseException e) {
+                                                Log.i("aaaa", "deu merda");
+                                                throw new RuntimeException(e);
+                                            }
+
+
 
 
                                             adapter = new CustomAdapter(requireActivity(), ridesList);
@@ -285,6 +306,9 @@ public class MainFragment extends Fragment {
                             }
                             //cardItems.clear();
                             populateListFromDatabase(v);
+                            ListView listView = v.findViewById(R.id.ListViewRides);
+                            listView.removeAllViewsInLayout();
+
                         }
                     });
         });

@@ -118,7 +118,7 @@ public class RideProfileFragment extends Fragment {
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
-
+            selectedRide = (Ride) getArguments().get("selectedRide");
         }
 
 
@@ -169,6 +169,7 @@ public class RideProfileFragment extends Fragment {
         //Se os dados tiverem sido corretamente recebidos, devem ser apresentados usando a função "setRideValues"
         //o "listenForChanges" escuta alterações à viagem em questão e atualiza os dados casa se verifique uma alteração
         if(selectedRide != null){
+
             setRideValues(selectedRide);
             listenForChanges(selectedRide);
 
