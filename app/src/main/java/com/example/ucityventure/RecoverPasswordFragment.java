@@ -99,6 +99,8 @@ public class RecoverPasswordFragment extends Fragment {
                                 }
                             }
                         });
+
+                ((MainActivity)getActivity()).PopCurrentFragment();
             }
         });
 
