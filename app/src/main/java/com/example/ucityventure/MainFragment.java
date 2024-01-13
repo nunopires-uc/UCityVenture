@@ -262,7 +262,7 @@ public class MainFragment extends Fragment {
                                                     ridesList.add(ride);
                                                 }
                                             } catch (ParseException e) {
-                                                Log.i("aaaa", "deu merda");
+
                                                 throw new RuntimeException(e);
                                             }
 
