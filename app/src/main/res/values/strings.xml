@@ -1,53 +1,53 @@
 <resources>
     <string name="app_name">UCityVenture</string>
-    <string name="nicknameInput">Email utilizador</string>
-    <string name="passwordInput">Palavra-passe</string>
+    <string name="nicknameInput">User email</string>
+    <string name="passwordInput">Password</string>
     <string name="emailInput">E-mail</string>
     <string name="loginButton">Login</string>
     <string name="registerText">
-Não tem conta?
-<font color="#e9aa3f">Registe-se</font>
+No account?
+<font color="#e9aa3f">Register</font>
 </string>
     <string name="forgotPasswordText">
-Esqueceu-se da palavra-passe?
-<font color="#e9aa3f">Clique aqui</font>
+Forgot your password?
+<font color="#e9aa3f">Click here</font>
 </string>
-    <string name="nameInput">Nome próprio</string>
-    <string name="passConfirmInput">Confirme a palavra-passe</string>
-    <string name="registerButton">Registar</string>
-    <string name="verifyContentText">Foi enviado um código de verificação para o seu email! Insira-o em baixo.</string>
+    <string name="nameInput">First name</string>
+    <string name="passConfirmInput">Confirm your password</string>
+    <string name="registerButton">Register</string>
+    <string name="verifyContentText">A verification code has been sent to your email! Enter it below.</string>
     <string name="verifyInput">Código de 6 dígitos</string>
-    <string name="verifyButton">Confirmar</string>
+    <string name="verifyButton">6-digit code</string>
     <string name="title_activity_maps">MapsActivity</string>
     <string name="title_activity_ride_profile">RideProfileActivity</string>
     <string name="title_activity_service_ride_profile">ServiceRideProfileActivity</string>
     <!--  TODO: Remove or change this placeholder text  -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="searchDestinationPlaceholder">Procurar destino ...</string>
-    <string name="searchOriginPlaceholder">Procurar origem ...</string>
-    <string name="recoverButtonText">Recuperar</string>
-    <string name="recoverSubText">RECUPERE A SUA PASSWORD</string>
-    <string name="recoverMainText">RECUPERAR</string>
+    <string name="searchDestinationPlaceholder">Destination search ...</string>
+    <string name="searchOriginPlaceholder">Search for origin ...</string>
+    <string name="recoverButtonText">Recovery</string>
+    <string name="recoverSubText">RECOVER YOUR PASSWORD</string>
+    <string name="recoverMainText">RECOVERY</string>
 
-    <string name="createRideMainText">CRIAR</string>
-    <string name="createRideSubText">CRIE A SUA VIAGEM!</string>
-    <string name="createRideLicenseText">Matrícula</string>
-    <string name="createRideLugares">Lugares</string>
-    <string name="createRideDateTime">Data e hora</string>
-    <string name="createRideLocation">Localização</string>
-    <string name="createRideInformation">Informação (opcional)</string>
-    <string name="createRideCreateButton">Criar boleia</string>
+    <string name="createRideMainText">CREATE</string>
+    <string name="createRideSubText">PLAN YOUR TRIP!</string>
+    <string name="createRideLicenseText">Licence plate</string>
+    <string name="createRideLugares">Seats</string>
+    <string name="createRideDateTime">Date and time</string>
+    <string name="createRideLocation">Location</string>
+    <string name="createRideInformation">Info (optional)</string>
+    <string name="createRideCreateButton">Plan a ride</string>
     <string name="loginMainText">LOGIN</string>
-    <string name="loginSubText">POR FAVOR EFETUE O LOGIN</string>
-    <string name="ponto_de_partida">PONTO DE PARTIDA</string>
+    <string name="loginSubText">PLEASE LOG IN</string>
+    <string name="ponto_de_partida">STARTING POINT</string>
     <string name="street_name">Rua das fores</string>
-    <string name="map_create_button">Definir ponto de partida</string>
-    <string name="confirmar_boleia">Confirmar Boleia</string>
-    <string name="registerMainText">REGISTO</string>
-    <string name="registerSubText">REGISTE-SE NA PLATAFORMA</string>
-    <string name="criar_boleia">Criar boleia</string>
-    <string name="boleias_inscritas">Boleias inscritas</string>
-    <string name="minhas_boleias">Minhas boleias</string>
-    <string name="boleias">BOLEIAS</string>
-    <string name="os_seus_servi_os_de_boleias">OS SEUS SERVIÇOS DE BOLEIAS</string>
+    <string name="map_create_button">Set starting point</string>
+    <string name="confirmar_boleia">Confirm a ride</string>
+    <string name="registerMainText">REGISTRATION</string>
+    <string name="registerSubText">REGISTER ON THE PLATFORM</string>
+    <string name="criar_boleia">Plan a ride</string>
+    <string name="boleias_inscritas">Signed up rides</string>
+    <string name="minhas_boleias">My rides</string>
+    <string name="boleias">RIDES</string>
+    <string name="os_seus_servi_os_de_boleias">YOUR CAR-POOLING SERVICES</string>
 </resources>
